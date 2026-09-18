@@ -1,0 +1,67 @@
+/**
+ * WPDS ↔ wp-admin cascade reset.
+ *
+ * Import once per React entry that renders into wp-admin:
+ *   import '@automattic/vip-admin-ui/reset.css';
+ * and put `vipui-page` on the admin page's root element.
+ *
+ * `@wordpress/ui` components style themselves inside `@layer wp-ui-components`.
+ * wp-admin's common.css styles the bare flow tags — `p`, `.wrap h1`, … — with
+ * UNLAYERED rules, and an unlayered *normal* declaration beats *any* layered one
+ * regardless of specificity. So a `<Text variant="body-sm">` rendered as a `<p>`
+ * loses its DS typography to common.css `p {}`, and a heading loses to
+ * `.wrap h1`. Raising the component's specificity does nothing; the fix has to
+ * win the unlayered contest.
+ *
+ * These rules are unlayered too, so they compete with common.css on
+ * specificity, then hand typography back to the DS layer with `revert-layer`
+ * and zero the margins wp-admin injects (DS components are margin-free; the
+ * surrounding Stack owns spacing). Wrapping the tags in `:where()` keeps the
+ * element contribution at zero, so each component's own styles still win over
+ * the reset.
+ *
+ * `.description` is excluded: it is a wp-admin-classed helper, not a DS
+ * element, and `revert-layer` (which rolls back past *every* unlayered rule,
+ * not just wp-admin's) would strip its 13px/italic. Never put that class on a
+ * `<Text>`; give the muted tone a class of your own.
+ *
+ * The `.notice` subtree is excluded for the same reason. wp-admin relocates
+ * admin notices *into* the `.wrap`, at the `<hr class="wp-header-end">`, which
+ * puts them in range of the page reset, where it would out-specify core's
+ * `.notice p` and strip the paragraph margins that give a notice its height.
+ *
+ * Add any other intentionally wp-admin-styled flow element to the `:not()`
+ * lists. An ID-scoped wp-admin rule would out-specify these and needs its own
+ * targeted override.
+ */
+
+/* The admin page. `.wrap:has( … )` lands at (0,2,0) — enough to out-specify
+   wp-admin's `.wrap h1` / `.wrap p` globals (0,1,1) — and reaches the page's own
+   heading, which WordPress prints outside the React root. */
+.wrap:has(.vipui-page) :where(p, h1, h2, h3, h4, h5, h6):where(:not(.description, .notice, .notice *)) {
+	font: revert-layer; /* wpds-allow R5 -- not raw type styling; reverts to the DS @layer wp-ui-components value over wp-admin globals */
+	margin: 0; /* wpds-allow R2,R3 -- not spacing between siblings; strips the margin wp-admin injects onto a margin-free DS component, and zero needs no token */
+}
+
+/* Modals. A `@wordpress/components` <Modal> portals to document.body, so it has
+   no `.wrap` ancestor and the page reset never matches inside it.
+   `.components-modal__content :where( … )` lands at (0,1,0), which
+   out-specifies the bare `p` (0,0,1) that reaches a portaled modal. This
+   applies to every modal on a screen that loads this file — which is the
+   point, since a modal opened from your page is yours. */
+.components-modal__content :where(p, h1, h2, h3, h4, h5, h6):where(:not(.description)) {
+	font: revert-layer; /* wpds-allow R5 -- not raw type styling; reverts to the DS @layer wp-ui-components value over wp-admin globals */
+	margin: 0; /* wpds-allow R2,R3 -- strips the margin wp-admin injects onto a margin-free DS component, and zero needs no token */
+}
+
+/* `<fieldset>` keeps a UA `min-inline-size: min-content`, so it refuses to
+   shrink below its own content and overflows any constrained flex or grid
+   parent. `@wordpress/ui`'s `Fieldset` zeroes border, margin and padding and
+   stops, so this belongs here, once, rather than on each group's own class. A UA
+   declaration loses to any author rule, so the scope is about not restyling
+   wp-admin's own fieldsets rather than about winning a cascade fight. */
+.wrap:has(.vipui-page) fieldset,
+.components-modal__content fieldset {
+	min-inline-size: 0; /* wpds-allow R2 -- zero needs no token; undoes a UA min-content floor, not a design dimension */
+}
+

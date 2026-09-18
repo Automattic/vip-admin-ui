@@ -1,0 +1,49 @@
+/* The wp-admin body, as far as these components can see it. The page reset in
+   reset.css only matches inside `.wrap`, so the decorator in preview.js renders
+   every story inside `.wrap > .vipui-page`, the way an admin page does. */
+body {
+	font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+	font-size: 13px;
+	line-height: 1.4em;
+	color: #1e1e1e;
+}
+
+/* Story-only layout: a settings screen's content column. */
+.sb-settings-screen {
+	max-width: 640px;
+	padding: 24px 24px 0;
+}
+
+/* Story-only frames for the inspector: the panel fills a docked column. */
+.sb-inspector-frame {
+	display: flex;
+	width: 360px;
+	height: 720px;
+}
+
+.sb-inspector-column {
+	width: 320px;
+}
+
+/* Foundations swatches. */
+.sb-swatch {
+	width: 48px;
+	height: 32px;
+	border-radius: 4px;
+}
+
+.sb-swatch-label {
+	width: 120px;
+}
+
+.sb-elevation {
+	width: 120px;
+	height: 80px;
+	padding: 12px;
+	border-radius: 8px;
+	background: #fff;
+}
+
+.sb-type-sample {
+	width: 280px;
+}

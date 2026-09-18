@@ -1,0 +1,71 @@
+{
+	"version": 2,
+	"scope": "realization",
+	"note": "The composites @automattic/vip-admin-ui ships, as realizations of Loupe's pattern language. Merged over the WPDS profile's registry, winning on key. Point a plugin's loupe.config.json at this file with \"patterns\": \"node_modules/@automattic/vip-admin-ui/patterns.json\" (relative to the plugin's repo root).",
+	"realizations": [
+		{
+			"pattern": "action-cluster.bar",
+			"import": "@automattic/vip-admin-ui",
+			"canonical": "ActionRow",
+			"detector": [
+				"declared",
+				{ "rule": "judge", "components": [ "Button" ], "unless": [ "href", "render" ] }
+			],
+			"instead_of": [
+				"A Stack of Buttons with hand-set alignment",
+				"Buttons spaced with margin, or pushed apart with margin-left: auto"
+			],
+			"note": "Every group of actions: cancel first, primary last, right-aligned. `stretch` for containers too narrow to hug. See docs/actions.md."
+		},
+		{
+			"pattern": "edit-record.dialog",
+			"import": "@automattic/vip-admin-ui",
+			"canonical": "ModalActions",
+			"detector": "signature",
+			"signature": [
+				"Modal",
+				"Stack|VStack|HStack|Flex",
+				[ "Stack|VStack|HStack|Flex", "Button", "Button" ]
+			],
+			"instead_of": [
+				"A Modal with a hand-built footer Stack and per-modal footer CSS",
+				"Per-child margins inside a modal body instead of ModalBody's gap"
+			],
+			"note": "A @wordpress/components Modal whose content is wrapped in ModalBody and whose footer is ModalActions. See docs/modals.md."
+		},
+		{
+			"pattern": "confirm",
+			"import": "@automattic/vip-admin-ui",
+			"canonical": "useConfirm",
+			"detector": [
+				"signature",
+				{ "rule": "confirm-pair", "container": "Modal", "button": "Button" }
+			],
+			"signature": [
+				"Modal",
+				"Text",
+				[ "Stack|VStack|HStack|Flex", "Button", "Button" ]
+			],
+			"instead_of": [
+				"A hand-built Modal + Text + button pair asking yes or no",
+				"window.confirm()"
+			],
+			"note": "`const [ confirm, confirmDialog ] = useConfirm();` then `await confirm( message, options )`. For yes/no only; an informational dialog is a Modal with one Close in ModalActions."
+		},
+		{
+			"pattern": "edit-record.inspector",
+			"import": "@automattic/vip-admin-ui",
+			"canonical": "InspectorShell",
+			"detector": "signature",
+			"signature": [
+				"Stack|VStack|HStack|Flex",
+				[ "Stack|VStack|HStack|Flex", "Text", "Button" ],
+				"Stack|VStack|HStack|Flex"
+			],
+			"instead_of": [
+				"A one-off side panel with a bespoke header and its own section dividers"
+			],
+			"note": "InspectorShell holding InspectorSections in a Stack gap=\"lg\", read-outs as Fact rows, lists as InspectorFieldList, and at most one InspectorDangerZone at the foot. See docs/inspector.md."
+		}
+	]
+}

@@ -1,0 +1,76 @@
+{
+	"name": "@automattic/vip-admin-ui",
+	"version": "0.1.0",
+	"description": "Shared WordPress Design System composites for VIP admin plugins.",
+	"license": "GPL-2.0-or-later",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Automattic/vip-admin-ui.git"
+	},
+	"main": "build/index.js",
+	"module": "build-module/index.js",
+	"exports": {
+		".": {
+			"import": "./build-module/index.js",
+			"require": "./build/index.js"
+		},
+		"./reset.css": "./build-module/styles/reset.css",
+		"./tokens.css": "./build-module/styles/tokens.css",
+		"./palette.css": "./build-module/styles/palette.css",
+		"./package.json": "./package.json"
+	},
+	"files": [
+		"build",
+		"build-module",
+		"docs",
+		"patterns.json"
+	],
+	"sideEffects": [
+		"*.css"
+	],
+	"scripts": {
+		"build": "npm run build:module && npm run build:cjs",
+		"build:module": "babel src -d build-module --copy-files --no-copy-ignored --ignore \"src/**/*.stories.js,src/**/story-fixtures.js\"",
+		"build:cjs": "BABEL_ENV=cjs babel src -d build --copy-files --no-copy-ignored --ignore \"src/**/*.stories.js,src/**/story-fixtures.js\"",
+		"prepublishOnly": "npm run build",
+		"lint:js": "wp-scripts lint-js src .storybook",
+		"lint:css": "wp-scripts lint-style 'src/**/*.css'",
+		"lint": "npm run lint:js && npm run lint:css",
+		"storybook": "storybook dev -p 6006",
+		"build-storybook": "storybook build"
+	},
+	"peerDependencies": {
+		"@dnd-kit/core": "^6.1.0",
+		"@dnd-kit/sortable": ">=8.0.0",
+		"@dnd-kit/utilities": "^3.2.0",
+		"@wordpress/components": ">=32.0.0",
+		"@wordpress/element": ">=6.0.0",
+		"@wordpress/ui": "^0.22.0",
+		"react": "^18 || ^19",
+		"react-dom": "^18 || ^19"
+	},
+	"dependencies": {
+		"@base-ui/react": "^1.7.0",
+		"@wordpress/icons": "^16.0.0"
+	},
+	"devDependencies": {
+		"@babel/cli": "^7.28.0",
+		"@babel/core": "^7.28.0",
+		"@babel/plugin-transform-modules-commonjs": "^7.29.7",
+		"@babel/preset-react": "^7.29.7",
+		"@dnd-kit/core": "^6.3.1",
+		"@dnd-kit/sortable": "^10.0.0",
+		"@dnd-kit/utilities": "^3.2.2",
+		"@storybook/addon-docs": "^10.6.0",
+		"@storybook/react-vite": "^10.6.0",
+		"@wordpress/components": "^40.1.0",
+		"@wordpress/element": "^8.7.0",
+		"@wordpress/scripts": "^35.0.0",
+		"@wordpress/theme": "^2.1.0",
+		"@wordpress/ui": "^0.22.0",
+		"react": "^18.3.0",
+		"react-dom": "^18.3.0",
+		"storybook": "^10.6.0",
+		"vite": "^8.3.0"
+	}
+}

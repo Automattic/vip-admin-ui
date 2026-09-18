@@ -1,0 +1,7 @@
+{
+	"extends": "wpds",
+	"patterns": "patterns.json",
+	"namespaces": {
+		"project": [ "vipui-", "sb-" ]
+	}
+}

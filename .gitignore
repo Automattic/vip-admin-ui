@@ -1,0 +1,7 @@
+node_modules/
+build/
+build-module/
+storybook-static/
+.loupe/
+*.log
+.DS_Store

@@ -1,0 +1,45 @@
+/**
+ * Supplemental design tokens: values the WordPress Design System does not yet
+ * represent in code, and that every plugin building on it would otherwise
+ * declare for itself.
+ *
+ * Import once per entry: `import '@automattic/vip-admin-ui/tokens.css';`
+ * The package's own components depend on these.
+ *
+ * Follows the WPDS naming grammar under the `--vipui-` namespace. Keep this set
+ * small: a token belongs here only when WPDS has no equivalent and more than one
+ * plugin needs it. Product-specific tones (a feature's accent color, a
+ * category's hue) stay in the plugin. Delete a token the moment WPDS ships one.
+ */
+:root {
+	/* Composite type styles, one per @wordpress/ui <Text variant>. WPDS ships
+	   only the primitive --wpds-typography-* tokens to code and keeps the
+	   composites inside the Text component's CSS module, where third-party DOM
+	   and custom elements cannot reach them. These pack weight, size/line-height
+	   and family into the `font` shorthand so a restyle is one declaration:
+	   `font: var(--vipui-text-body-md)`. Mappings copied from @wordpress/ui's
+	   text styles — line-heights intentionally don't track the size step. Apply
+	   the `font` token FIRST in a rule (it resets font-variant/stretch).
+	   heading-sm is uppercase in the Text component; add
+	   `text-transform: uppercase` alongside this token to fully match it. */
+	--vipui-text-heading-2xl: var(--wpds-typography-font-weight-emphasis) var(--wpds-typography-font-size-2xl)/var(--wpds-typography-line-height-2xl) var(--wpds-typography-font-family-heading);
+	--vipui-text-heading-xl: var(--wpds-typography-font-weight-emphasis) var(--wpds-typography-font-size-xl)/var(--wpds-typography-line-height-md) var(--wpds-typography-font-family-heading);
+	--vipui-text-heading-lg: var(--wpds-typography-font-weight-emphasis) var(--wpds-typography-font-size-lg)/var(--wpds-typography-line-height-sm) var(--wpds-typography-font-family-heading);
+	--vipui-text-heading-md: var(--wpds-typography-font-weight-emphasis) var(--wpds-typography-font-size-md)/var(--wpds-typography-line-height-sm) var(--wpds-typography-font-family-heading);
+	--vipui-text-heading-sm: var(--wpds-typography-font-weight-emphasis) var(--wpds-typography-font-size-xs)/var(--wpds-typography-line-height-xs) var(--wpds-typography-font-family-heading);
+	--vipui-text-body-xl: var(--wpds-typography-font-weight-default) var(--wpds-typography-font-size-xl)/var(--wpds-typography-line-height-xl) var(--wpds-typography-font-family-body);
+	--vipui-text-body-lg: var(--wpds-typography-font-weight-default) var(--wpds-typography-font-size-lg)/var(--wpds-typography-line-height-md) var(--wpds-typography-font-family-body);
+	--vipui-text-body-md: var(--wpds-typography-font-weight-default) var(--wpds-typography-font-size-md)/var(--wpds-typography-line-height-sm) var(--wpds-typography-font-family-body);
+	--vipui-text-body-sm: var(--wpds-typography-font-weight-default) var(--wpds-typography-font-size-sm)/var(--wpds-typography-line-height-xs) var(--wpds-typography-font-family-body);
+
+	/* WPDS stops its radius scale at xl. */
+	--vipui-radius-full: 9999px;
+
+	/* Elevation shadows. WPDS shipped --wpds-elevation-* until @wordpress/theme
+	   1.0.0 removed the set while the elevation model is redefined. These are
+	   those values verbatim; drop them once the new model ships. */
+	--vipui-elevation-xs: 0 1px 1px 0 #00000008, 0 1px 2px 0 #00000005, 0 3px 3px 0 #00000005, 0 4px 4px 0 #00000003;
+	--vipui-elevation-sm: 0 1px 2px 0 #0000000d, 0 2px 3px 0 #0000000a, 0 6px 6px 0 #00000008, 0 8px 8px 0 #00000005;
+	--vipui-elevation-md: 0 2px 3px 0 #0000000d, 0 4px 5px 0 #0000000a, 0 12px 12px 0 #00000008, 0 16px 16px 0 #00000005;
+	--vipui-elevation-lg: 0 5px 15px 0 #00000014, 0 15px 27px 0 #00000012, 0 30px 36px 0 #0000000a, 0 50px 43px 0 #00000005;
+}

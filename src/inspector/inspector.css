@@ -1,0 +1,444 @@
+/**
+ * Inspector — the docked options panel and everything inside it.
+ *
+ * One stylesheet for the whole family (InspectorShell, InspectorSection,
+ * InspectorFacts, InspectorFieldList, InspectorChoiceRow, InspectorDangerZone),
+ * because they are one visual grammar and share their rules. Positioning the
+ * panel is the consumer's wrapper's job; everything inside the card is here.
+ */
+
+/* The panel is a <Card> floating over what it inspects. Fills the consumer's
+   wrapper and clips its own corners, so a long options list scrolls inside the
+   card instead of past its rounded edge. <Card.Root> is already a flex column,
+   so only the sizing and the clipping are set here.
+
+   The elevation is set here rather than inherited: <Card> rests flat, which
+   reads as a panel welded to the page. A resting shadow is what makes this one
+   look like it's above the surface. `md` — enough to lift it without the drama
+   of a modal. */
+.vipui-inspector {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow: hidden;
+	box-shadow: var(--vipui-elevation-md);
+	/* A wrapper may turn pointer events off so the empty space it spans below a
+	   collapsed panel doesn't swallow clicks; the card takes them back. */
+	pointer-events: auto;
+}
+
+/* Collapsed: the body is `hidden`, so the card has only its header left.
+   `align-self` alone drops the default `stretch` and lets the card shrink to
+   that header inside a row wrapper. `flex` stays untouched on purpose: changing
+   it here would shrink the card's *width* to its content and the bar would no
+   longer line up with the open panel. */
+.vipui-inspector--collapsed {
+	align-self: flex-start;
+}
+
+/* Pinned: the title stays put while the body scrolls. `flex-shrink: 0` stops a
+   long title from squeezing the header. */
+.vipui-inspector__head {
+	flex-shrink: 0;
+	padding: var(--wpds-dimension-padding-lg);
+	/* wpds-allow R6 -- <Stack> exposes no border prop, so the rule under the header is drawn here */
+	border-bottom: 1px solid var(--wpds-color-stroke-surface-neutral);
+}
+
+/* The eyebrow + title column. `min-width: 0` lets a long title wrap instead of
+   shoving the collapse toggle off the panel. */
+.vipui-inspector__heading {
+	min-width: 0;
+}
+
+/* The header's only control. `flex-shrink: 0` keeps it at its natural size no
+   matter how long the title runs. */
+.vipui-inspector__collapse {
+	flex-shrink: 0;
+}
+
+/* <Text variant="heading-sm"> carries the type and the small caps; what is left
+   is the block box that puts the title on its own line, the tracking that keeps
+   uppercase at this size readable, and the muted tone. */
+.vipui-inspector__eyebrow {
+	display: block;
+	/* wpds-allow R6,R8 -- @wordpress/theme ships no letter-spacing token and <Text> exposes no tracking prop */
+	letter-spacing: 0.4px;
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the eyebrow's muted tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* <Text variant="heading-lg"> carries the type; the stylesheet only tones it and
+   lets free-text titles wrap rather than overflow the panel. */
+.vipui-inspector__title {
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the title's tone is set here */
+	color: var(--wpds-color-foreground-content-neutral);
+	overflow-wrap: anywhere;
+}
+
+/* The only scrolling region in the panel. `min-height: 0` is load-bearing: a
+   flex item defaults to min-height:auto, which refuses to shrink below its
+   content, so without it a long options list overflows the fixed-height card
+   and gets clipped by the corner-rounding `overflow: hidden` above — visible
+   but unreachable. */
+.vipui-inspector__body {
+	flex: 1 1 auto;
+	min-height: 0;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	padding: var(--wpds-dimension-padding-lg);
+}
+
+/* A panel whose whole body is one explanation, with no option group under it to
+   belong to. Distinct from a section's help line because there is no section:
+   only the muted tone is shared, and <Text variant="body-sm"> carries the type. */
+.vipui-inspector__help {
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* --- Sections ------------------------------------------------------------ */
+
+/* Option groups. The group is its own `<Stack direction="column">`, and sibling
+   spacing comes from the parent `<Stack direction="column" gap="lg">`; each
+   section adds only the divider rule above it (border + padding), zeroed on the
+   first section. */
+.vipui-inspector-section {
+	padding-top: var(--wpds-dimension-padding-lg);
+	/* wpds-allow R6 -- <Stack> exposes no border prop, so the rule between groups is drawn here */
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-weak);
+}
+
+.vipui-inspector-section:first-of-type {
+	/* wpds-allow R6 -- same border, dropped: the first group has nothing above it to be separated from, and <Stack> exposes no border prop */
+	border-top: 0;
+	padding-top: 0; /* wpds-allow R2 -- zero needs no token */
+}
+
+/* Neutral, not brand: a section title is a heading, and the brand tone made
+   static ones read as links. On a collapsible section the chevron and hover
+   state carry the affordance instead. Type comes from <Text variant="heading-md">. */
+.vipui-inspector-section__title {
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the title's tone is set here */
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* The extra distance under an open section's bare title. Three classes, so it
+   out-specifies the wp-admin reset in reset.css (0,2,0), which zeroes every
+   heading margin inside the page.
+
+   Excludes the collapsible variant: there the title sits inside
+   Collapsible.Trigger, a flex row with `align-items: center`. A margin there
+   would grow the row with nothing filling the gap, and centre the title's
+   *margin box* instead of its text — pushing the label out of line with the
+   chevron. */
+.vipui-inspector-section:not(.vipui-inspector-section--collapsible) .vipui-inspector-section__title {
+	/* wpds-allow R3 -- not sibling spacing: the title sits alone in its heading column, and the column's gap only falls between it and a help line */
+	margin-block-end: var(--wpds-dimension-gap-sm);
+}
+
+/* ... and not inside a heading row, where the title is a centred flex item beside
+   the section's actions and the margin would push it out of line. Four classes,
+   so it beats the rule above whatever the source order. */
+.vipui-inspector-section:not(.vipui-inspector-section--collapsible) .vipui-inspector-section__header .vipui-inspector-section__title {
+	margin-block-end: 0; /* wpds-allow R2 -- zero needs no token */
+}
+
+/* A section's heading row: its title (or disclosure trigger) and whatever
+   control the section hangs off that heading. The <Stack> owns the row; this
+   only has to let the trigger claim the width the actions do not, so the whole
+   strip stays the disclosure's hit target rather than shrinking to its text. */
+.vipui-inspector-section__header > .vipui-inspector-section__toggle {
+	flex: 1; /* wpds-allow R4 -- the trigger takes what the header's actions leave; <Stack> has no per-child grow prop */
+	min-width: 0; /* wpds-allow R2 -- zero needs no token */
+}
+
+/* A disclosure section's actions are wrapped so the wrapper can open the section
+   when one of them is pressed. The wrapper is bookkeeping, never a box:
+   `contents` takes it out of the layout entirely, so the control inside stays a
+   direct flex item of the heading row. */
+.vipui-inspector-section__actions {
+	display: contents;
+}
+
+/* The disclosure row. A full-width reset button so the whole strip is the hit
+   target, not just the title text. The class exists to take a native button's
+   box away — border, background, padding, inherited color — which no layout
+   primitive has props for, so the row lays itself out alongside that reset. */
+.vipui-inspector-section__toggle {
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	width: 100%;
+	padding: 0; /* wpds-allow R2 -- zero needs no token */
+	border: 0; /* wpds-allow R6 -- Collapsible.Trigger is a bare Base UI <button> with no unstyled/plain variant, so its UA box is taken away here */
+	background: none; /* wpds-allow R6 -- the same UA button box; the section supplies the surface */
+	cursor: var(--wpds-cursor-control);
+	text-align: start;
+	color: inherit; /* wpds-allow R6 -- same: `buttontext` would cut the title and chevron off from the row's own tone, and the trigger exposes no color prop */
+}
+
+/* The disclosure's affordance: the row responds, so the neutral title doesn't
+   have to advertise itself in brand color. Icons from @wordpress/icons draw in
+   `currentcolor`, so `color` tints the chevron too. */
+.vipui-inspector-section__toggle:hover .vipui-inspector-section__title,
+.vipui-inspector-section__toggle:hover .vipui-inspector-section__chevron {
+	/* wpds-allow R6 -- <Text> and <Icon> expose no color prop, so the hover tone is set here */
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.vipui-inspector-section__toggle:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-interactive-brand);
+	outline-offset: 2px;
+	border-radius: var(--wpds-border-radius-sm); /* wpds-allow R6 -- rounds the focus ring to the trigger's own corners; Collapsible.Trigger exposes no radius prop */
+}
+
+/* Points right when shut, down when open. Base UI sets `aria-expanded` on the
+   trigger, so the open state needs no JS to style. */
+.vipui-inspector-section__chevron {
+	flex-shrink: 0;
+	/* wpds-allow R6 -- <Icon> exposes no color prop; the glyph draws in currentcolor */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	transition: transform 0.15s ease;
+}
+
+.vipui-inspector-section__toggle[aria-expanded="true"] .vipui-inspector-section__chevron {
+	transform: rotate(90deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vipui-inspector-section__chevron {
+		transition: none;
+	}
+}
+
+/* The collapsed-state gist, e.g. "Off" / "3 fields". Pushed to the far end;
+   type comes from <Text variant="body-sm">, so only placement and tone are set
+   here. */
+.vipui-inspector-section__summary {
+	/* wpds-allow R3 -- `auto` pushes this one child to the end of the trigger row; a <Stack> justifies the whole row and has no per-child prop */
+	margin-inline-start: auto;
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the summary's muted tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* The gap between a disclosure's trigger and what it discloses, set on the
+   content rather than on the panel that holds it. `hidden="until-found"` keeps
+   the panel's own box — padding and all — while collapsed, and skips only its
+   contents, so spacing that lives on the contents collapses with them. */
+.vipui-inspector-section__panel > .vipui-inspector-section__disclosed {
+	padding-top: var(--wpds-dimension-padding-md);
+}
+
+/* Type comes from <Text variant="body-sm"> and the column it sits in owns the
+   spacing, so only the muted tone is left. */
+.vipui-inspector-section__help {
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the help line's tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* --- Info tips ----------------------------------------------------------- */
+
+/* The trigger that carries a read-out row's explanation. A bare button reset:
+   it sits inline in the row, so it must not bring a button's box with it. Muted
+   until it is hovered or focused, because it is an offer rather than a
+   statement. Its size is the icon's. */
+.vipui-inspector-infotip {
+	display: inline-flex;
+	align-items: center;
+	padding: 0; /* wpds-allow R2 -- zero needs no token */
+	border: 0; /* wpds-allow R6 -- Tooltip.Trigger is a bare Base UI <button> with no unstyled/plain variant, so its UA box is taken away here */
+	background: none; /* wpds-allow R6 -- the same UA button box; the row supplies the surface */
+	cursor: help;
+	color: var(--wpds-color-foreground-content-neutral-weak); /* wpds-allow R6 -- Tooltip.Trigger exposes no tone prop, so the muted resting colour is set here */
+}
+
+.vipui-inspector-infotip:hover,
+.vipui-inspector-infotip:focus-visible {
+	/* wpds-allow R6 -- Tooltip.Trigger exposes no tone prop, so the hover/focus colour is set here too */
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.vipui-inspector-infotip:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-interactive-brand);
+	outline-offset: 2px;
+	border-radius: var(--wpds-border-radius-sm); /* wpds-allow R6 -- rounds the focus ring to the trigger's own corners; Tooltip.Trigger exposes no radius prop */
+}
+
+/* Narrower than the tooltip's default: these are sentences, and a popup as wide
+   as the viewport turns two lines into one very long one. */
+.vipui-inspector-infotip__popup {
+	max-width: var(--wpds-dimension-surface-width-xs);
+}
+
+/* --- Danger zone --------------------------------------------------------- */
+
+/* The panel's destructive control, ending its body. Set off by a heavier rule
+   than the one between option groups — `stroke-surface-neutral`, the weight the
+   header uses, against the groups' `-weak` — which is what stops a button at
+   the end of a scroll reading as one more option. */
+.vipui-inspector-danger {
+	padding-top: var(--wpds-dimension-padding-lg);
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral);
+}
+
+/* Why the action is unavailable, or what it costs. Only the tone is set —
+   <Text variant="body-sm"> carries the type. */
+.vipui-inspector-danger__help {
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the muted tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* --- Read-out rows ------------------------------------------------------- */
+
+/* A read-out list: one row per setting, its name at the start and its current
+   value at the far end. The list is a `<Stack direction="column" gap="xs">`
+   rendered as a <ul>, so all that is left here is undoing the browser's own
+   list box. */
+.vipui-inspector__facts {
+	list-style: none;
+	/* wpds-allow R3 -- the browser's default <ul> margin has to be reset; <Stack> owns the gap, not the UA box */
+	margin: 0;
+	padding: 0; /* wpds-allow R2 -- zero needs no token */
+}
+
+/* Each row is a `<Stack align="center" gap="sm">` rendered as an <li>; only its
+   tone is set here. */
+.vipui-inspector__fact {
+	/* wpds-allow R6 -- <Stack> exposes no color prop, so the row's tone is set here */
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+/* A row that is still configured but can't be used right now. */
+.vipui-inspector__fact.is-disabled {
+	/* wpds-allow R6 -- <Stack> exposes no color prop */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	/* wpds-allow R6 -- <Stack> exposes no opacity prop */
+	opacity: 0.7;
+}
+
+/* The row being dragged. Half-opacity is dnd-kit's convention for the original
+   while its placeholder moves under the pointer. */
+.vipui-inspector__fact.is-dragging {
+	/* wpds-allow R6 -- <Stack> exposes no opacity prop */
+	opacity: 0.5;
+}
+
+/* The reorder grip. A button rather than the row itself, so the row's tooltip
+   trigger — or its remove button — is not nested inside a control, and so the
+   KeyboardSensor has a tab stop. */
+.vipui-inspector__grip {
+	display: flex; /* wpds-allow R4 -- the grip stays a <button> so the KeyboardSensor has a tab stop, and this class exists to take that button's box away */
+	align-items: center; /* wpds-allow R4 -- centres the glyph inside that <button> */
+	flex: 0 0 auto; /* wpds-allow R4 -- the grip keeps its width while the row's body takes the rest; <Stack> has no per-child grow prop */
+	padding: 0; /* wpds-allow R2 -- zero needs no token */
+	border: none;
+	background: none;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: grab;
+}
+
+.vipui-inspector__grip:focus-visible {
+	outline: 2px solid var(--wpds-color-stroke-surface-brand-strong);
+	outline-offset: 1px;
+}
+
+/* Grips and remove buttons are hidden at rest and revealed on hover or focus,
+   so the list reads as content at a glance and shows its controls only when an
+   author is acting on a row. The grip fades; the button appears without a
+   transition, because a destructive control that animates toward the pointer
+   would invite an accidental press. `:focus-within` covers keyboard navigation. */
+.vipui-inspector-field-list .vipui-inspector__grip {
+	/* wpds-allow R6 -- <Stack> has no opacity prop */
+	opacity: 0;
+	transition: opacity 120ms ease;
+}
+
+.vipui-inspector-field-list .vipui-inspector__fact:hover .vipui-inspector__grip,
+.vipui-inspector-field-list .vipui-inspector__fact:focus-within .vipui-inspector__grip,
+.vipui-inspector-field-list .vipui-inspector__grip:focus-visible {
+	/* wpds-allow R6 -- reveals the grip */
+	opacity: 1;
+}
+
+.vipui-inspector-field-list .vipui-inspector__fact > .components-button.is-destructive {
+	/* wpds-allow R6 -- <Button> exposes no opacity prop */
+	opacity: 0;
+}
+
+.vipui-inspector-field-list .vipui-inspector__fact:hover > .components-button.is-destructive,
+.vipui-inspector-field-list .vipui-inspector__fact:focus-within > .components-button.is-destructive {
+	/* wpds-allow R6 -- reveals the remove button */
+	opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vipui-inspector-field-list .vipui-inspector__grip {
+		transition: none;
+	}
+}
+
+/* A row that opens what it reports. The button takes the rest of the row, so
+   the name and the value are one target rather than a small hotspot someone has
+   to find — and so `fact-value`'s `auto` start margin still pushes the value to
+   the end of the line.
+
+   Everything here is undoing the UA's button box; the tone has to be inherited
+   rather than left at `buttontext`, or the row's own states (is-disabled above)
+   would stop reaching the text inside it. */
+.vipui-inspector__fact-open {
+	flex: 1; /* wpds-allow R4 -- the button has to fill what the grip leaves so the row still reads as one line; <Stack> has no per-child grow prop */
+	min-width: 0; /* wpds-allow R2 -- zero needs no token */
+	padding: 0; /* wpds-allow R2 -- zero needs no token */
+	border: none; /* wpds-allow R6 -- the <Stack> renders a <button>, and this class exists to take that button's UA box away; <Stack> exposes no border prop */
+	background: none; /* wpds-allow R6 -- same: the UA button surface, which the row supplies instead */
+	color: inherit; /* wpds-allow R6 -- <Stack> exposes no color prop, and `buttontext` would cut the row's own tone off from the text inside it */
+	text-align: start;
+	cursor: var(--wpds-cursor-control);
+}
+
+/* Says it is a target, without giving rows the weight of buttons in a panel
+   where nothing else in the list is one. */
+.vipui-inspector__fact-open:hover {
+	text-decoration: underline; /* wpds-allow R6 -- <Stack> exposes no text-decoration prop */
+}
+
+.vipui-inspector__fact-open:focus-visible {
+	outline: 2px solid var(--wpds-color-stroke-surface-brand-strong);
+	outline-offset: 1px;
+	border-radius: var(--wpds-border-radius-sm); /* wpds-allow R6 -- rounds the focus ring to match the grip's; <Stack> exposes no radius prop */
+}
+
+.vipui-inspector__fact-value {
+	/* wpds-allow R3 -- `auto` pushes the value past however many items lead the row; a <Stack> justifies the whole row and has no per-child prop */
+	margin-inline-start: auto;
+	text-align: end;
+	/* wpds-allow R6 -- <Text> exposes no color prop, so the value's muted tone is set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* A setting nothing has been set to. Italic so the placeholder standing in for
+   it can't be mistaken for the setting itself. */
+.vipui-inspector__fact .is-empty {
+	font-style: italic;
+}
+
+/* An item whose storage key would have the save refused. The row reports the
+   problem in place of its value, so the tone has to reach that text too —
+   `fact-value` sets its own muted color, which would otherwise win. */
+.vipui-inspector-field-list .vipui-inspector__fact.is-invalid,
+.vipui-inspector-field-list .vipui-inspector__fact.is-invalid .vipui-inspector__fact-value {
+	/* wpds-allow R6 -- <Stack> and <Text> expose no color prop */
+	color: var(--wpds-color-foreground-content-error);
+}
+
+/* The options a row opens, in a popover anchored to the row that opens it: wide
+   enough for a labelled text control, capped before a long name can stretch it
+   past the widest core meta popover. */
+.vipui-inspector-field-list__popover .components-popover__content,
+.vipui-inspector-choice__popover .components-popover__content {
+	/* wpds-allow R6 -- Popover exposes no width/padding props; its content box must be sized here. */
+	/* wpds-allow R2 -- 260-320px brackets core's 248-320px meta dialogs; no token holds a popover width. */
+	min-width: 260px;
+	max-width: 320px;
+	padding: var(--wpds-dimension-padding-md);
+}

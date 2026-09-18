@@ -1,0 +1,48 @@
+/**
+ * The collaboration qualitative palette: seven categorical hues, each in four
+ * roles. The same palette Gutenberg's real-time collaboration uses to tell
+ * collaborators apart, so categories in these plugins read as the same family.
+ *
+ * Import where needed: `import '@automattic/vip-admin-ui/palette.css';`
+ *
+ * For telling categories apart (stages, sources, entity types) — never for
+ * state. Pass/warn/fail stay on WPDS semantic tokens.
+ *
+ * - stroke:          accents, borders, dots
+ * - background:      filled badges (pair with white text)
+ * - highlight:       tints and light backgrounds (pair with default text)
+ * - background-dark: filled badges on dark surfaces
+ */
+:root {
+	--vipui-color-collaborator-stroke-1: #c36eff;
+	--vipui-color-collaborator-stroke-2: #ff51a8;
+	--vipui-color-collaborator-stroke-3: #e4780a;
+	--vipui-color-collaborator-stroke-4: #ff35ee;
+	--vipui-color-collaborator-stroke-5: #879f11;
+	--vipui-color-collaborator-stroke-6: #46a494;
+	--vipui-color-collaborator-stroke-7: #00a2c3;
+
+	--vipui-color-collaborator-background-1: #9601ff;
+	--vipui-color-collaborator-background-2: #cb0066;
+	--vipui-color-collaborator-background-3: #9f5407;
+	--vipui-color-collaborator-background-4: #bc00ad;
+	--vipui-color-collaborator-background-5: #5e6e0c;
+	--vipui-color-collaborator-background-6: #317268;
+	--vipui-color-collaborator-background-7: #007188;
+
+	--vipui-color-collaborator-highlight-1: #f4e4ff;
+	--vipui-color-collaborator-highlight-2: #ffe2f0;
+	--vipui-color-collaborator-highlight-3: #fde7d1;
+	--vipui-color-collaborator-highlight-4: #ffe1fd;
+	--vipui-color-collaborator-highlight-5: #e3f392;
+	--vipui-color-collaborator-highlight-6: #d9efeb;
+	--vipui-color-collaborator-highlight-7: #bbf4ff;
+
+	--vipui-color-collaborator-background-dark-1: #8100de;
+	--vipui-color-collaborator-background-dark-2: #b00059;
+	--vipui-color-collaborator-background-dark-3: #894806;
+	--vipui-color-collaborator-background-dark-4: #a30096;
+	--vipui-color-collaborator-background-dark-5: #515f0a;
+	--vipui-color-collaborator-background-dark-6: #2a6259;
+	--vipui-color-collaborator-background-dark-7: #006175;
+}

@@ -1,0 +1,4 @@
+.vipui-settings-loading {
+	padding: var(--wpds-dimension-padding-xl);
+	color: var(--wpds-color-foreground-content-neutral-weak); /* wpds-allow R6 -- muted loading-state text color; Stack has no color prop */
+}
