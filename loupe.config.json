@@ -1,6 +1,16 @@
 {
 	"extends": "wpds",
 	"patterns": "patterns.json",
+	"designSystem": {
+		"tokenPrefixes": [ "--wpds-", "--vipui-" ],
+		"tokenSources": [
+			"node_modules/@wordpress/theme/prebuilt/css/design-tokens.css",
+			"node_modules/@wordpress/theme/build-style",
+			"node_modules/@wordpress/components/build-style",
+			"src/styles/tokens.css",
+			"src/styles/palette.css"
+		]
+	},
 	"namespaces": {
 		"project": [ "vipui-", "sb-" ]
 	}
