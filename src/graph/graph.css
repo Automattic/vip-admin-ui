@@ -1,0 +1,873 @@
+/**
+ * Graph canvas — cards, pills, edges, bands and the menu. See docs/graph.md.
+ *
+ * Neutral surfaces and strokes for chrome, the brand tone for selection, the
+ * caution tone for a flagged card. Every rule that reaches into React Flow's
+ * own markup is scoped under `.vipui-graph`, so two canvases on one page (or a
+ * plugin's own React Flow) are not restyled by this one.
+ */
+
+/* --- Tones ---------------------------------------------------------------- */
+
+/* The tones a named exit is read by, on its badge, its edge and the edge's
+   marks. Stroke tones rather than the `foreground-content-*` ones status text
+   uses: those are near-black tints meant for type on a tinted surface, and an
+   11px disc or a 1px line painted with them reads as black. */
+.vipui-graph .is-tone-success {
+	--vipui-graph-tone: var(--wpds-color-stroke-surface-success-strong);
+}
+
+.vipui-graph .is-tone-caution {
+	--vipui-graph-tone: var(--wpds-color-stroke-surface-caution-strong);
+}
+
+.vipui-graph .is-tone-error {
+	--vipui-graph-tone: var(--wpds-color-stroke-surface-error-strong);
+}
+
+/* --- Surface ---------------------------------------------------------------- */
+
+.vipui-graph {
+	position: relative;
+	width: 100%;
+	height: 100%;
+}
+
+.vipui-graph .react-flow {
+	background: var(--wpds-color-background-surface-neutral-strong);
+}
+
+.vipui-graph__background {
+	color: var(--wpds-color-stroke-surface-neutral-weak); /* dot colour */
+}
+
+/* Layout changes ease into place instead of snapping: nodes slide by their
+   transform, edges re-route by their `d`, and each edge's midpoint marks ride
+   along. */
+.vipui-graph .react-flow__node {
+	transition: transform var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
+}
+
+.vipui-graph-edge,
+.vipui-graph-edge__halo {
+	transition:
+		d var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced),
+		stroke var(--wpds-motion-duration-sm) ease,
+		stroke-width var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-edge__controls {
+	transition: transform var(--wpds-motion-duration-md) var(--wpds-motion-easing-balanced);
+}
+
+/* Anything being dragged tracks the cursor 1:1 — easing it would make it lag
+   behind the pointer, and a dragged node drags its edges along with it. */
+.vipui-graph.is-dragging .react-flow__node,
+.vipui-graph.is-dragging .vipui-graph-edge,
+.vipui-graph.is-dragging .vipui-graph-edge__halo,
+.vipui-graph.is-dragging .vipui-graph-edge__controls {
+	transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vipui-graph .react-flow__node,
+	.vipui-graph-edge,
+	.vipui-graph-edge__halo,
+	.vipui-graph-edge__controls {
+		transition: none;
+	}
+}
+
+/* React Flow leaves the label layer, where the edge pill renders, at `auto`,
+   so the pill loses to its own line and to any band it crosses, and the line's
+   wide hit stroke swallows the click. Lifted to the cards' z-index and no
+   further: the layer comes before the nodes in the DOM, so at an equal z-index
+   a card still paints over a pill whose midpoint falls on it; any higher and a
+   selected edge's pill would take that card's clicks and drags. */
+.vipui-graph .react-flow__edgelabel-renderer { /* wpds-allow R6 -- third-party chrome (React Flow); no theming API */
+	z-index: 2;
+}
+
+/* The invisible stroke React Flow lays over each line to catch the pointer is
+   drawn with no stroke at all, and an unpainted stroke adds nothing to the
+   overflow of the edge's `<svg>`, which Chromium hit-tests — so half the band
+   ended at the painted halo. A transparent stroke is painted, and gives the
+   band its full width on both sides. */
+.vipui-graph .react-flow__edge-interaction { /* wpds-allow R6 -- third-party chrome (React Flow); the hit target is not a themeable surface */
+	stroke: transparent;
+}
+
+/* --- Cards ---------------------------------------------------------------- */
+
+.vipui-graph-node {
+	position: relative;
+	box-sizing: border-box;
+	width: 200px;
+	height: 80px;
+	/* wpds-allow layout/in-css -- the card's whole state treatment (surface, border, per-state tints) is CSS with no <Stack> prop behind it; binding the class would keep every one of those declarations and only relabel them as overrides */
+	display: flex;
+	padding: var(--wpds-dimension-padding-lg);
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-interactive-neutral);
+	border-radius: var(--wpds-border-radius-lg);
+	box-shadow: var(--vipui-elevation-xs);
+	/* Cards are hand-placeable, so they read as grabbable rather than
+	   clickable (React Flow's own cursor sits on the wrapper this covers). */
+	cursor: grab;
+	transition:
+		border-color var(--wpds-motion-duration-sm) ease,
+		background-color var(--wpds-motion-duration-sm) ease;
+}
+
+.react-flow__node.dragging .vipui-graph-node,
+.react-flow__node.dragging .vipui-graph-terminal {
+	cursor: grabbing;
+}
+
+.vipui-graph-node:hover {
+	border-color: var(--wpds-color-stroke-interactive-neutral-strong);
+}
+
+/* Selection is the card itself — a brand border over a brand-washed surface —
+   rather than a ring around it. The stroke thickens to the 2px a selected edge
+   draws at, and the padding gives the extra back so the text doesn't shift. */
+.vipui-graph-node.is-selected {
+	border-color: var(--wpds-color-stroke-interactive-brand);
+	border-width: var(--wpds-border-width-sm);
+	padding: calc(var(--wpds-dimension-padding-lg) - var(--wpds-border-width-sm) + var(--wpds-border-width-xs));
+	background: var(--wpds-color-background-interactive-brand-weak-active);
+}
+
+/* A kind of node the plugin wants legible from across the canvas: its tone as
+   the border and a light wash, deepened for selection the way the brand wash
+   is. The tone is the plugin's (`data.accent`); only the treatment is here. */
+.vipui-graph-node.is-accent {
+	/* wpds-allow tokens/unknown-token -- a local property, set inline by GraphNode from the plugin's `data.accent` */
+	border-color: var(--vipui-graph-node-accent);
+	background: color-mix(in srgb, var(--vipui-graph-node-accent) 5%, var(--wpds-color-background-surface-neutral));
+}
+
+.vipui-graph-node.is-accent.is-selected {
+	background: color-mix(in srgb, var(--vipui-graph-node-accent) 12%, var(--wpds-color-background-surface-neutral));
+}
+
+/* A flagged card wears the caution tone whole-card, like selection wears the
+   brand. Caution rather than error: these are hints the author can act on
+   later; what actually blocks a save belongs in a notice. Last, so it wins
+   over selection and accent — the more urgent thing to see. */
+.vipui-graph-node.is-warning,
+.vipui-graph-node.is-accent.is-warning {
+	border-color: var(--wpds-color-stroke-surface-caution-strong);
+	background: var(--wpds-color-background-surface-caution-weak);
+}
+
+/* A card sitting *on* a band's border rather than inside a band. */
+.vipui-graph-node.is-raised {
+	box-shadow: var(--vipui-elevation-sm);
+}
+
+/* The card's one in-flow child — the title row over the footer row, both
+   <Stack>s. What's left here is the sizing that makes it fill the card. */
+.vipui-graph-node__body {
+	flex: 1 1 auto;
+	min-width: 0;
+}
+
+.vipui-graph-node__label {
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	color: var(--wpds-color-foreground-content-neutral);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.vipui-graph-node__flag {
+	flex: 0 0 auto;
+	/* wpds-allow R6 -- <Icon> renders the raw SVG and exposes no color prop; the tint has to be set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	/* Glyphs come in two kinds: filled ones take `fill`, stroked ones (whose
+	   inline `fill: none` wins over this) take `stroke="currentColor"`. Tinting
+	   through `color` reaches both. */
+	/* wpds-allow system/override -- <Icon> exposes no color prop; filled glyphs need `fill` to follow the tint above */
+	fill: currentColor;
+}
+
+/* The caution tone in its icon-legible weight, the same value the card's
+   warning border resolves to. */
+.vipui-graph-node__flag--warning {
+	/* wpds-allow R6 -- <Icon> renders the raw SVG and exposes no color prop; the tint has to be set here */
+	color: var(--wpds-color-foreground-content-caution-weak);
+}
+
+.vipui-graph-node__meta {
+	/* wpds-allow R6 -- <Text> exposes no color prop; the muted tone has to be set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.vipui-graph-node__badge {
+	display: inline-flex;
+	align-items: center;
+	/* Off the token scale on purpose: the glyph belongs to the word beside it,
+	   and the smallest gap token reads as a space between two things. */
+	gap: 2px;
+	/* wpds-allow R6 -- <Text> exposes no color prop; the brand tone has to be set here */
+	color: var(--wpds-color-foreground-interactive-brand);
+}
+
+.vipui-graph-node__badge svg {
+	/* wpds-allow R6 -- the glyph follows the <Text>'s own color, and neither <Text> nor <Icon> exposes a prop for it */
+	fill: currentColor;
+}
+
+/* Drop sheet — the whole card is the target handle, so a connection can be
+   released anywhere on it instead of onto a dot. Invisible, and inert until a
+   connection is in flight: React Flow finds the drop target with
+   `elementFromPoint`, so the sheet has to take pointer events then, but at
+   rest it would swallow the card's own hovers and clicks. */
+.vipui-graph-node__drop.react-flow__handle, /* wpds-allow R6 -- third-party chrome (React Flow); no theming API */
+.vipui-graph-terminal__drop.react-flow__handle {
+	inset: 0; /* wpds-allow R2 -- zero needs no token */
+	width: auto;
+	height: auto;
+	min-width: 0; /* wpds-allow R2 -- zero needs no token */
+	min-height: 0; /* wpds-allow R2 -- zero needs no token */
+	background: none;
+	border: none;
+	border-radius: inherit;
+	opacity: 0; /* wpds-allow R2 -- fully transparent, not a color */
+	transform: none;
+	pointer-events: none;
+}
+
+.vipui-graph-node.is-connecting .vipui-graph-node__drop.react-flow__handle,
+.vipui-graph-terminal.is-connecting .vipui-graph-terminal__drop.react-flow__handle {
+	pointer-events: all;
+}
+
+/* The exits on the bottom border — the drag grip, or one badge per named exit.
+   Affordances rather than chrome, so they fade in with the pointer and a card
+   at rest reads as just a labelled box. Pointer events stay React Flow's
+   business, so a handle is hit-testable while transparent: reaching for the
+   half that hangs below the border hovers the card and brings it up.
+   `connectingfrom` keeps a handle up for the length of its own drag, which
+   outlives the hover once the pointer leaves the card. */
+.vipui-graph-node__handle.react-flow__handle { /* wpds-allow R6 -- third-party chrome (React Flow); no theming API */
+	/* wpds-allow layout/in-css -- React Flow's <Handle> renders this element and positions it absolutely against the node; a <Stack> cannot replace it */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 22px;
+	height: 22px;
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--vipui-radius-full);
+	box-shadow: var(--vipui-elevation-xs);
+	/* Above the card's own content, so the half below the border stays
+	   draggable. */
+	z-index: 1;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	opacity: 0; /* wpds-allow R2 -- fully transparent, not a color */
+	transition:
+		opacity var(--wpds-motion-duration-sm) ease,
+		color var(--wpds-motion-duration-sm) ease,
+		border-color var(--wpds-motion-duration-sm) ease,
+		background-color var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-node__handle svg {
+	fill: currentColor;
+	pointer-events: none;
+}
+
+.vipui-graph-node:hover .vipui-graph-node__handle.react-flow__handle,
+.vipui-graph-node__handle.react-flow__handle:hover,
+.vipui-graph-node__handle.react-flow__handle.connectingfrom {
+	opacity: 1;
+}
+
+.vipui-graph-node:hover .vipui-graph-node__handle--grip.react-flow__handle,
+.vipui-graph-node__handle--grip.react-flow__handle:hover,
+.vipui-graph-node__handle--grip.react-flow__handle.connectingfrom {
+	color: var(--wpds-color-foreground-interactive-brand);
+	border-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* A named exit wears its tone on the glyph and the border — and a glyph, so
+   which is which survives someone who can't tell the hues apart. */
+.vipui-graph-node__handle--exit.react-flow__handle {
+	border-color: var(--vipui-graph-tone);
+	color: var(--vipui-graph-tone);
+}
+
+/* A routed exit fills, so "this exit leads somewhere" is legible while the
+   badges are up, and an unrouted one reads as an empty socket. */
+.vipui-graph-node__handle--exit.is-routed.react-flow__handle {
+	background: var(--vipui-graph-tone);
+	color: var(--wpds-color-background-surface-neutral);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vipui-graph-node__handle.react-flow__handle {
+		transition: none;
+	}
+}
+
+/* --- Start / End pills ------------------------------------------------------ */
+
+.vipui-graph-terminal {
+	box-sizing: border-box;
+	/* wpds-allow layout/in-css -- the pill's surface, border and radius have no <Stack> prop behind them, so binding the class would keep all three and only relabel them as overrides */
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 120px;
+	height: 36px;
+	padding: 0 var(--wpds-dimension-padding-lg);
+	background: var(--wpds-color-background-surface-neutral-strong);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--vipui-radius-full);
+	cursor: grab;
+}
+
+.vipui-graph-terminal__label {
+	font: var(--vipui-text-heading-sm);
+	text-transform: uppercase;
+	/* wpds-allow typography/untokenized -- WPDS ships no letter-spacing scale; uppercase micro-type needs the tracking to stay readable */
+	letter-spacing: 0.4px;
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.vipui-graph-terminal__handle.react-flow__handle { /* wpds-allow R6 -- third-party chrome (React Flow); no theming API */
+	width: 9px;
+	height: 9px;
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1.5px solid var(--wpds-color-stroke-interactive-neutral);
+}
+
+.vipui-graph-terminal__handle.react-flow__handle:hover {
+	border-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* --- Bands (screen space) --------------------------------------------------- */
+
+/* Both layers cover the whole pane and take no pointer events; each section is
+   positioned inside from the viewport transform (`GraphBands`). The lines sit
+   *under* the graph — z-index 0 clears React Flow's background (-1) and stays
+   below its renderer (4) — so a card can straddle a boundary and edges cross
+   it. The labels ride *over* it, like the zoom controls. */
+.vipui-graph-bands,
+.vipui-graph-band-labels {
+	position: absolute;
+	inset: 0; /* wpds-allow R2 -- zero needs no token */
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.vipui-graph-bands {
+	z-index: 0;
+}
+
+.vipui-graph-band-labels {
+	z-index: 5;
+}
+
+/* The boundary a section opens with, run edge to edge. Only the top is drawn:
+   where one section ends is where the next begins. */
+.vipui-graph-bands__section {
+	position: absolute;
+	left: 0; /* wpds-allow R2 -- zero needs no token */
+	right: 0; /* wpds-allow R2 -- zero needs no token */
+	border-top: 1px solid var(--wpds-color-stroke-surface-neutral-strong);
+	transition:
+		background var(--wpds-motion-duration-sm) ease,
+		border-color var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-bands__section.is-selected {
+	border-top-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* While a drag would change which band something is in: the whole section
+   says so. */
+.vipui-graph-bands__section.is-drop-target {
+	background: var(--wpds-color-background-surface-info-weak);
+	border-top-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* Sticky to the left edge of the viewport and just below its line, indented
+   past the zoom controls' column (their 26px plus an inset either side),
+   since a boundary can come to rest across that corner. */
+.vipui-graph-band-labels__label {
+	position: absolute;
+	left: calc(var(--wpds-dimension-gap-md) * 2 + 26px);
+	/* wpds-allow layout/margin-on-child -- the label's `top` is a screen-space coordinate written inline from the viewport transform; this is its offset below that line, not spacing between siblings */
+	margin-top: var(--wpds-dimension-gap-sm);
+	/* wpds-allow layout/in-css -- a <Stack> is always display:flex, and it carries none of this pill (surface, border, radius), so binding the class would only turn those into overrides */
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	padding: var(--wpds-dimension-padding-xs) var(--wpds-dimension-padding-md);
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--vipui-radius-full);
+	cursor: var(--wpds-cursor-control);
+	pointer-events: auto;
+}
+
+.vipui-graph-band-labels__label:hover {
+	border-color: var(--wpds-color-stroke-surface-neutral-strong);
+}
+
+.vipui-graph-band-labels__label.is-selected,
+.vipui-graph-band-labels__label.is-drop-target {
+	border-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+.vipui-graph-band-labels__icon {
+	/* wpds-allow R6 -- <Icon> renders the raw SVG and exposes no color prop; the tint has to be set here */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	/* wpds-allow system/override -- <Icon> exposes no color prop; filled glyphs need `fill` to follow the tint above */
+	fill: currentColor;
+}
+
+.vipui-graph-band-labels__name {
+	font: var(--vipui-text-heading-sm);
+	text-transform: uppercase;
+	/* wpds-allow typography/untokenized -- WPDS ships no letter-spacing scale; uppercase micro-type needs the tracking to stay readable */
+	letter-spacing: 0.4px;
+	color: var(--wpds-color-foreground-content-neutral);
+}
+
+.vipui-graph-band-labels__meta {
+	font: var(--vipui-text-body-sm);
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+/* --- Right-click menu ------------------------------------------------------- */
+
+.vipui-graph-menu {
+	position: absolute;
+	z-index: 20;
+	min-width: 220px;
+	padding: var(--wpds-dimension-padding-xs);
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	box-shadow: var(--vipui-elevation-md);
+}
+
+.vipui-graph-menu__item {
+	/* wpds-allow layout/in-css -- the item's stripped-button treatment (background, border, radius, hover and disabled tones) has no <Stack> prop behind it, so binding the class would keep all of it and only relabel it as overrides */
+	display: flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-sm);
+	width: 100%;
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	background: none;
+	border: none;
+	border-radius: var(--wpds-border-radius-sm);
+	color: var(--wpds-color-foreground-content-neutral);
+	text-align: left;
+	cursor: var(--wpds-cursor-control);
+}
+
+.vipui-graph-menu__item:hover:not(:disabled) {
+	background: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.vipui-graph-menu__item:focus-visible {
+	outline: var(--wpds-border-width-focus) solid var(--wpds-color-stroke-focus);
+	outline-offset: -1px;
+}
+
+.vipui-graph-menu__item:disabled {
+	color: var(--wpds-color-foreground-content-neutral-weak);
+	cursor: default;
+}
+
+.vipui-graph-menu__icon {
+	/* wpds-allow R6 -- <Icon> renders the raw SVG and exposes no color prop; `fill` is the only way to make the glyph follow the item's own color through hover and disabled */
+	fill: currentColor;
+}
+
+/* --- Edges ------------------------------------------------------------------ */
+
+/* Edge state is carried on React Flow's edge group as two custom properties:
+   `color`, which the line and its marks paint with, and `--vipui-graph-halo`,
+   the ring drawn under the line. So a state only declares its tones.
+
+   The states mirror the card: neutral at rest, darker on hover, brand when
+   selected, with the halo standing in for the focus ring an SVG path can't
+   take. The line also thickens on hover, since a tone shift alone barely
+   registers on 1px; and `is-outbound` puts every edge leaving the selected
+   node in the brand tone without the ring, which stays the selection's.
+   Order matters: `is-outbound` overrides only the tone, and `selected` wins
+   over both. */
+.vipui-graph .react-flow__edge {
+	--vipui-graph-halo: transparent;
+
+	color: var(--wpds-color-stroke-surface-neutral-strong);
+	transition: color var(--wpds-motion-duration-sm) ease;
+}
+
+/* `is-hovered` as well as `:hover`: the pill is portalled out of the edge's
+   `<g>`, so the pointer on it drops `:hover` while the edge is still hovered. */
+.vipui-graph .react-flow__edge:hover,
+.vipui-graph .react-flow__edge.is-hovered {
+	--vipui-graph-halo: var(--wpds-color-stroke-surface-neutral);
+	--vipui-graph-edge-width: 2;
+
+	color: var(--wpds-color-stroke-interactive-neutral-strong);
+}
+
+.vipui-graph .react-flow__edge.is-outbound {
+	--vipui-graph-edge-width: 2;
+
+	color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* React Flow clears its own outline on a focused edge, so keyboard focus lands
+   on the same ring as selection. */
+.vipui-graph .react-flow__edge.selected,
+.vipui-graph .react-flow__edge:focus-visible {
+	--vipui-graph-halo: var(--wpds-color-stroke-surface-brand);
+	--vipui-graph-edge-width: 2;
+
+	color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* A named exit's edge wears its tone at all times, so two lines between the
+   same pair of cards can be told apart at rest. Only the weight changes on
+   hover and selection. After `selected`, so the tone beats the brand. */
+.vipui-graph .react-flow__edge.is-exit {
+	color: var(--vipui-graph-tone);
+}
+
+/* A disabled edge: still there, still selectable, but reading as inert. Last
+   of the tone rules; the canvas never gives a disabled edge its exit tone, so
+   the two can't compete. The dots are set inline by `GraphEdge`. */
+.vipui-graph .react-flow__edge.is-disabled {
+	color: var(--wpds-color-stroke-surface-neutral);
+}
+
+/* The path carries React Flow's `.react-flow__edge-path` too, whose stroke
+   rules are equally specific; the `path` qualifier settles it regardless of
+   which stylesheet loads first. */
+.vipui-graph .react-flow__edge path.vipui-graph-edge {
+	stroke: currentColor;
+	stroke-width: var(--vipui-graph-edge-width, 1);
+}
+
+/* Under the line and wider than it, so the exposed shoulders read as an
+   outline. Transparent until a state gives the halo a tone. */
+.vipui-graph-edge__halo {
+	fill: none;
+	stroke: var(--vipui-graph-halo);
+	stroke-width: 6;
+	stroke-linecap: round;
+	pointer-events: none;
+}
+
+/* The mouth of an underpass: a short cup across each end of a break, bowed
+   toward the card (`edge-tunnel.js`). Part of the line, so its colour. */
+.vipui-graph-edge__cap {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: var(--vipui-graph-edge-width, 1);
+	stroke-linecap: round;
+	pointer-events: none;
+}
+
+/* The edge one of whose ends is being dragged: the drag line already says
+   where it's going, so the old line (and its marks) steps aside. */
+.vipui-graph .react-flow__edge.is-reconnecting,
+.vipui-graph-overlay .is-reconnecting {
+	opacity: 0; /* wpds-allow R2 -- fully transparent, not a color */
+}
+
+/* The midpoint's occupants are both absolutely positioned and centred on it,
+   so the pill's width — a node's name, and so anything — can't move the mark.
+   The wrapper is the point itself, and takes no pointer events; only the pill
+   switches them back on. Its transform makes it a stacking context, so the
+   wrapper is what gets lifted for a shown pill. */
+.vipui-graph-edge__controls {
+	position: absolute;
+	pointer-events: none;
+}
+
+.vipui-graph-edge__controls.is-visible,
+.vipui-graph-edge__controls:has(:focus-visible) {
+	z-index: 1;
+}
+
+.vipui-graph-edge__controls.is-hovered {
+	z-index: 2;
+}
+
+/* The link mark: "this line is one of a set standing on one record". A filled
+   disc with a knocked-out glyph, in the neutral tone — a fact about the record,
+   not about an exit. Sized inline by `GraphEdge`. Click-through. */
+.vipui-graph-edge__mark {
+	position: absolute;
+	top: 0; /* wpds-allow R2 -- zero needs no token */
+	left: 0; /* wpds-allow R2 -- zero needs no token */
+	transform: translate(-50%, -50%);
+	/* wpds-allow layout/in-css -- a <Stack> is always display:flex and carries none of this disc, so binding the class to one would only turn all of it into overrides */
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	color: var(--wpds-color-background-surface-neutral);
+	background: var(--wpds-color-stroke-surface-neutral-strong);
+	border-radius: var(--vipui-radius-full);
+}
+
+.vipui-graph-edge__mark svg {
+	fill: currentColor;
+}
+
+/* The edge's label, and the thing that selects it: a large target for the
+   click that follows a hover on a thin line. Shown on hover and selection
+   only. Opaque, because it sits on the line it names; capped in width and
+   truncating, with the full string in the title. The WPDS Button supplies
+   keyboard behaviour, size and focus ring; this supplies the pill's geometry
+   and surface, which no Button variant draws. */
+/* wpds-allow system/override -- the pill is the edge's click target and label at once; `.components-button` is qualified so its geometry beats the Button's own, whichever stylesheet loads last */
+.vipui-graph-edge__pill.components-button {
+	position: absolute;
+	top: 0; /* wpds-allow R2 -- zero needs no token */
+	left: 0; /* wpds-allow R2 -- zero needs no token */
+	/* wpds-allow layout/in-css -- a <Stack> carries none of this pill, so binding the class to one would only turn all of it into overrides */
+	display: inline-flex;
+	align-items: center;
+	gap: var(--wpds-dimension-gap-xs);
+	max-width: 160px;
+	color: var(--wpds-color-foreground-content-neutral);
+	white-space: nowrap;
+	background: var(--wpds-color-background-surface-neutral);
+	border: 1px solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--vipui-radius-full);
+	box-shadow: var(--vipui-elevation-xs);
+	cursor: pointer;
+	opacity: 0; /* wpds-allow R2 -- fully transparent, not a color */
+	pointer-events: none;
+	transition: opacity var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-edge__pill svg {
+	flex: none;
+	fill: currentColor;
+}
+
+/* What gives way when the name is too long. `min-width: 0` is what lets a flex
+   item shrink below its content, so the ellipsis can appear at all. */
+.vipui-graph-edge__pill-text {
+	min-width: 0;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+.vipui-graph-edge__pill:hover {
+	/* wpds-allow system/override -- the pill's own hover, on the surface drawn above */
+	color: var(--wpds-color-foreground-interactive-brand);
+	/* wpds-allow system/override -- same hover, on the pill's border */
+	border-color: var(--wpds-color-stroke-interactive-brand);
+}
+
+/* Muted to match the dotted line, not suppressed: this is the enlarged target,
+   and disabled edges are the likeliest to be selected in order to be deleted. */
+.vipui-graph-edge__pill.is-muted {
+	/* wpds-allow system/override -- Button has no muted tone; this matches the dotted line it sits on */
+	color: var(--wpds-color-foreground-content-neutral-weak);
+}
+
+.vipui-graph-edge__pill.is-visible,
+.vipui-graph-edge__pill:focus-visible {
+	/* wpds-allow system/override -- shown on hover and selection only; Button has no visibility prop */
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* --- Marks above the cards (`GraphEdgeOverlay`, `GraphEdgeAnchors`) ---------- */
+
+/* Both are a 1x1 sheet pinned to the flow origin with `overflow: visible`, so a
+   `ViewportPortal` child draws in flow coordinates without a transform of its
+   own. Above even an elevated node (React Flow raises one to 1000), and taking
+   no pointer events, so nothing beneath becomes unclickable. */
+.vipui-graph-overlay,
+.vipui-graph-anchors {
+	position: absolute;
+	left: 0; /* wpds-allow R2 -- zero needs no token */
+	top: 0; /* wpds-allow R2 -- zero needs no token */
+	width: 1px;
+	height: 1px;
+	overflow: visible;
+	pointer-events: none;
+}
+
+.vipui-graph-overlay {
+	z-index: 1001; /* wpds-allow R2 -- stacking order, not a color */
+}
+
+/* The head is an open chevron at the line's own width, so the stroke runs at
+   one weight from socket to point and thickens with it. It fades at the exit
+   badges' own pace, so a yielding head and the badge trade places. */
+.vipui-graph-overlay__arrow {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: var(--vipui-graph-edge-width, 1);
+	stroke-linecap: round;
+	stroke-linejoin: round;
+	transition: opacity var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-overlay__socket {
+	fill: currentColor;
+	stroke: none;
+}
+
+/* A named exit's departure: a disc in the edge's tone with the exit's glyph
+   knocked out of it, painted at rest. */
+.vipui-graph-overlay__exit {
+	transition: opacity var(--wpds-motion-duration-sm) ease;
+}
+
+.vipui-graph-overlay__exit-disc {
+	fill: currentColor;
+	stroke: none;
+}
+
+/* The glyph is knocked out of the disc: the canvas surface's colour, through
+   `color` so stroked glyphs (check, close) and filled ones both take it. */
+.vipui-graph-overlay__exit svg {
+	color: var(--wpds-color-background-surface-neutral);
+	fill: currentColor;
+}
+
+/* While — and only while — the exit badge underneath is painted. */
+.vipui-graph-overlay__arrow.is-yielding,
+.vipui-graph-overlay__exit.is-yielding {
+	opacity: 0; /* wpds-allow R2 -- fully transparent, not a color */
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.vipui-graph-overlay__arrow,
+	.vipui-graph-overlay__exit {
+		transition: none;
+	}
+}
+
+.vipui-graph-overlay__ghost {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: var(--vipui-graph-edge-width, 1);
+}
+
+/* One set of tones for the layer, mirroring the edge rules above, because
+   these *are* that edge — drawn elsewhere so a card can't cover them. */
+.vipui-graph-overlay > g > * {
+	color: var(--wpds-color-stroke-surface-neutral-strong);
+}
+
+.vipui-graph-overlay .is-hovered {
+	--vipui-graph-edge-width: 2;
+
+	color: var(--wpds-color-stroke-interactive-neutral-strong);
+}
+
+.vipui-graph-overlay .is-outbound,
+.vipui-graph-overlay .selected {
+	--vipui-graph-edge-width: 2;
+
+	color: var(--wpds-color-stroke-interactive-brand);
+}
+
+.vipui-graph-overlay .is-exit {
+	color: var(--vipui-graph-tone);
+}
+
+.vipui-graph-overlay .is-disabled {
+	color: var(--wpds-color-stroke-surface-neutral);
+}
+
+/* A disabled exit's mark still has to say which exit it is, and its glyph all
+   but vanishes on the pale disabled tone; the neutral the link mark uses
+   carries it legibly. */
+.vipui-graph-overlay .vipui-graph-overlay__exit.is-disabled {
+	color: var(--wpds-color-stroke-surface-neutral-strong);
+}
+
+/* The grab handles, above the marks on the same two ports. The circles take
+   pointer events and the sheet doesn't; while an end is travelling even the
+   circles go transparent, since the drop is decided by what is under the
+   cursor and the layer following it must never be the answer. */
+.vipui-graph-anchors {
+	z-index: 1002; /* wpds-allow R2 -- stacking order, not a color */
+}
+
+.vipui-graph-anchors__anchor {
+	pointer-events: all;
+	cursor: grab;
+}
+
+.vipui-graph-anchors.is-dragging .vipui-graph-anchors__anchor {
+	pointer-events: none;
+}
+
+/* An end in flight: the cursor is claimed from the canvas, on everything it
+   passes over, since the anchor itself no longer hit-tests. */
+.vipui-graph.is-rewiring,
+.vipui-graph.is-rewiring * {
+	cursor: grabbing;
+}
+
+.vipui-graph-anchors__grab {
+	fill: transparent; /* wpds-allow R2 -- a hit area, not a painted surface */
+	stroke: none;
+}
+
+/* A knob on the end of the line, filled with the canvas and ringed in the
+   edge's tone, so it reads as part of that edge rather than another node. */
+.vipui-graph-anchors__ring {
+	fill: var(--wpds-color-background-surface-neutral);
+	stroke: currentColor;
+	stroke-width: 2;
+}
+
+.vipui-graph-anchors__lead {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-linecap: round;
+	pointer-events: none;
+}
+
+.vipui-graph-anchors__ghost {
+	fill: none;
+	stroke: currentColor;
+	stroke-width: 2;
+	stroke-dasharray: 4 4;
+	rx: var(--wpds-border-radius-lg);
+	pointer-events: none;
+}
+
+.vipui-graph-anchors > g {
+	color: var(--wpds-color-stroke-interactive-brand);
+}
+
+.vipui-graph-anchors > g.is-exit {
+	color: var(--vipui-graph-tone);
+}
+
+.vipui-graph-anchors > g.is-disabled {
+	color: var(--wpds-color-stroke-surface-neutral);
+}
+
+/* What the drop would do, said in colour while the end is still held, so a
+   refused move doesn't read as a broken control when it springs back. */
+.vipui-graph-anchors.is-dragging > g.is-unchanged {
+	color: var(--wpds-color-stroke-surface-neutral-strong);
+}
+
+.vipui-graph-anchors.is-dragging > g.is-invalid {
+	color: var(--wpds-color-stroke-surface-error-strong);
+}

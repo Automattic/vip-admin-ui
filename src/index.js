@@ -24,3 +24,11 @@ export {
 } from './inspector/InspectorFieldList';
 export { InspectorChoiceRow } from './inspector/InspectorChoiceRow';
 export { InspectorDangerZone } from './inspector/InspectorDangerZone';
+
+export { GraphCanvas, classifyPositionChanges } from './graph/GraphCanvas';
+export { GRAPH_NODE_TYPE, GRAPH_NODE_SIZE } from './graph/GraphNode';
+export {
+	GRAPH_TERMINAL_TYPE,
+	GRAPH_TERMINAL_SIZE,
+} from './graph/GraphTerminal';
+export { GRAPH_EDGE_TYPE } from './graph/GraphEdge';

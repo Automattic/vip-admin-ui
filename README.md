@@ -5,8 +5,8 @@ System (`@wordpress/ui`, `@wordpress/components`, `--wpds-*` tokens).
 
 WPDS ships the parts. This package ships the patterns several VIP plugins kept
 rebuilding out of those parts: the action row, the modal footer, the settings
-section and save bar, the inspector panel kit. It also ships the one wp-admin
-CSS fix every plugin rediscovers on its own. It is not a second design system:
+section and save bar, the inspector panel kit, the graph canvas. It also ships
+the one wp-admin CSS fix every plugin rediscovers on its own. It is not a second design system:
 anything WPDS ships is used as-is, and anything here is deleted the day WPDS
 ships an equivalent.
 
@@ -18,6 +18,7 @@ ships an equivalent.
 | **Modals**    | `ModalBody`, `ModalActions`, `useConfirm`                                                                                                                                                       |
 | **Settings**  | `SettingsSection`, `SettingsFooter`, `SettingsLoading`                                                                                                                                          |
 | **Inspector** | `InspectorShell`, `InspectorCollapseContext`, `InspectorSection`, `Fact`, `SortableFact`, `InfoTip`, `InspectorFieldList`, `InspectorFieldListAdd`, `InspectorChoiceRow`, `InspectorDangerZone` |
+| **Graph**     | `GraphCanvas`, `classifyPositionChanges`, `GRAPH_NODE_TYPE`, `GRAPH_NODE_SIZE`, `GRAPH_TERMINAL_TYPE`, `GRAPH_TERMINAL_SIZE`, `GRAPH_EDGE_TYPE` |
 | **Avatar**    | `Avatar`                                                                                                                                                                                        |
 | **Strings**   | `StringsProvider`                                                                                                                                                                               |
 | **Styles**    | `reset.css` (the wp-admin cascade fix), `tokens.css` (tokens WPDS lacks), `palette.css` (the collaboration palette)                                                                             |
@@ -25,7 +26,7 @@ ships an equivalent.
 
 Guidelines live in [`docs/`](docs/): [actions](docs/actions.md),
 [modals](docs/modals.md), [settings](docs/settings.md),
-[inspector](docs/inspector.md), [avatar](docs/avatar.md),
+[inspector](docs/inspector.md), [graph](docs/graph.md), [avatar](docs/avatar.md),
 [strings](docs/i18n.md). Storybook shows every component and renders the same
 guides.
 
@@ -37,7 +38,8 @@ npm install @automattic/vip-admin-ui
 
 npm 7+ installs the peer dependencies too. They are peers because each needs to
 exist once per bundle: `@wordpress/ui` (^0.22), `@wordpress/components`,
-`@wordpress/element`, React, and `@dnd-kit/*`.
+`@wordpress/element`, React, `@dnd-kit/*`, and `@xyflow/react` (for the graph
+canvas).
 
 Then, once per React entry:
 
@@ -106,6 +108,7 @@ It is merged over the WPDS profile's registry and wins on key.
 npm install
 npm run storybook        # http://localhost:6006
 npm run lint             # ESLint + stylelint (WPDS token names included)
+npm test                 # Jest unit tests for the pure logic
 npm run build            # build-module/ and build/
 npm run build-storybook  # static Storybook in storybook-static/
 loupe check              # design-system conformance, if Loupe is installed

@@ -33,9 +33,10 @@
 		"build:module": "babel src -d build-module --copy-files --no-copy-ignored --ignore \"src/**/*.stories.js,src/**/story-fixtures.js\"",
 		"build:cjs": "BABEL_ENV=cjs babel src -d build --copy-files --no-copy-ignored --ignore \"src/**/*.stories.js,src/**/story-fixtures.js\"",
 		"prepublishOnly": "npm run build",
-		"lint:js": "wp-scripts lint-js src .storybook",
+		"lint:js": "wp-scripts lint-js src .storybook test",
 		"lint:css": "wp-scripts lint-style 'src/**/*.css'",
 		"lint": "npm run lint:js && npm run lint:css",
+		"test": "wp-scripts test-unit-js",
 		"storybook": "storybook dev -p 6006",
 		"build-storybook": "storybook build"
 	},
@@ -46,6 +47,7 @@
 		"@wordpress/components": ">=32.0.0",
 		"@wordpress/element": ">=6.0.0",
 		"@wordpress/ui": "^0.22.0",
+		"@xyflow/react": "^12.11.0",
 		"react": "^18 || ^19",
 		"react-dom": "^18 || ^19"
 	},
@@ -68,6 +70,7 @@
 		"@wordpress/scripts": "^35.0.0",
 		"@wordpress/theme": "^2.1.0",
 		"@wordpress/ui": "^0.22.0",
+		"@xyflow/react": "^12.11.6",
 		"react": "^18.3.0",
 		"react-dom": "^18.3.0",
 		"storybook": "^10.6.0",

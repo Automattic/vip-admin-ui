@@ -9,6 +9,7 @@ npm as `@automattic/vip-admin-ui` and bundled into each consuming plugin. Read
 ```bash
 npm run storybook        # dev server on :6006
 npm run lint             # ESLint + stylelint (unknown --wpds-* tokens fail)
+npm test                 # Jest: the pure logic in test/ (edge routing, etc.)
 npm run build            # babel: build-module/ (ESM) and build/ (CJS)
 npm run build-storybook  # must pass before a change is done
 loupe check              # design-system conformance
@@ -23,6 +24,8 @@ loupe check              # design-system conformance
 - `src/strings.js` — `StringsProvider` / `useStrings`.
 - `patterns.json` — the Loupe registry consumers point at.
 - `.storybook/` — config, English strings for stories, story-only CSS.
+- `test/` — Jest tests for pure logic. Outside `src/`, so the build never
+  ships them.
 
 ## Rules
 

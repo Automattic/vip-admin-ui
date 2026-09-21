@@ -1,5 +1,6 @@
 import '@wordpress/theme/design-tokens.css';
 import '@wordpress/components/build-style/style.css';
+import '@xyflow/react/dist/style.css';
 import '../src/styles/tokens.css';
 import '../src/styles/palette.css';
 import '../src/styles/reset.css';
@@ -24,6 +25,7 @@ const preview = {
 						'Modals',
 						'Settings',
 						'Inspector',
+						'Graph',
 						'Avatar',
 						'Strings',
 					],
@@ -32,6 +34,7 @@ const preview = {
 					'Modals',
 					'Settings',
 					'Inspector',
+					'Graph',
 					'Avatar',
 				],
 			},
