@@ -165,7 +165,7 @@ const edge = { id: 'check:pass->scheduled', source: 'check', target: 'scheduled'
 
 /** Default, selected, warning, accent, raised, and a footer badge; and an edge that is disabled. */
 export const CardStates = {
-	// a11y todo: `.vipui-graph-node__meta` on a selected card is 4.11:1.
+	// a11y todo (#3): `.vipui-graph-node__meta` on a selected card is 4.11:1.
 	parameters: { a11y: { test: 'todo' } },
 	play: async ( { canvas } ) => {
 		// A warning's strings are the flag's accessible name.
@@ -248,7 +248,7 @@ export const Rewiring = {
  * pinned to its left edge, at any pan or zoom. Click a label to select it.
  */
 export const Bands = {
-	// a11y todo: React Flow's attribution link is 2.76:1 on the band background.
+	// a11y todo (#5): React Flow's attribution link is 2.76:1 on the band background.
 	parameters: {
 		a11y: { test: 'todo' },
 		...snippet( `<GraphCanvas
