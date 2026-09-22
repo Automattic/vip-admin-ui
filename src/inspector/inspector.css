@@ -248,6 +248,7 @@
 	padding: 0; /* wpds-allow R2 -- zero needs no token */
 	border: 0; /* wpds-allow R6 -- Tooltip.Trigger is a bare Base UI <button> with no unstyled/plain variant, so its UA box is taken away here */
 	background: none; /* wpds-allow R6 -- the same UA button box; the row supplies the surface */
+	/* wpds-allow tokens/hardcoded-value -- deliberate, no token fits (judged 0.63) */
 	cursor: help;
 	color: var(--wpds-color-foreground-content-neutral-weak); /* wpds-allow R6 -- Tooltip.Trigger exposes no tone prop, so the muted resting colour is set here */
 }
