@@ -269,6 +269,15 @@ one tab stop, arrow keys and Home/End move between items, and Escape closes it
 and returns focus to whatever opened it. Panning, zooming or clicking elsewhere
 also closes it.
 
+## In the pattern language
+
+Loupe knows this as `edit-graph.canvas`: a region where the user builds things
+and the connections between them, with the placing of them the author's and
+kept. `patterns.json` points the key at `GraphCanvas`, so an agent that checks
+the registry before assembling a canvas finds this one. Editing one thing's own
+fields is `edit-record.inspector` instead — the redirect says so — which is the
+panel that sits beside this.
+
 ## With the inspector
 
 The canvas runs full-bleed and the inspector ([inspector.md](inspector.md))

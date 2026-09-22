@@ -66,6 +66,32 @@
 				"A one-off side panel with a bespoke header and its own section dividers"
 			],
 			"note": "InspectorShell holding InspectorSections in a Stack gap=\"lg\", read-outs as Fact rows, lists as InspectorFieldList, and at most one InspectorDangerZone at the foot. See docs/inspector.md."
+		},
+		{
+			"pattern": "edit-graph.canvas",
+			"import": "@automattic/vip-admin-ui",
+			"canonical": "GraphCanvas",
+			"detector": "import",
+			"instead_of": [
+				"A bare <ReactFlow> with hand-built node and edge components per plugin",
+				"Edges left to React Flow's own paths, so each one is routed without knowing where the others go",
+				"React Flow's reconnect anchors, which sit on the handle an edge nominally uses rather than where the line ends"
+			],
+			"note": "A node/edge canvas: cards, routed edges, bands, and the right-click menu. Detected by its import rather than by shape — React Flow is not a design-system package, so there is no signature to match. The plugin keeps its model, its layout and every \"can this connect to that\" answer; what the card shows is node data. See docs/graph.md.",
+			"parts": {
+				"nodes": {
+					"note": "A card is `type: GRAPH_NODE_TYPE` and its state is node data: label, meta, badge, warnings, accent, and named exits. Nothing is styled per plugin."
+				},
+				"edges": {
+					"note": "Plain React Flow edges; the canvas defaults their type and plans every one of them together. `data.label` is the pill, `data.linkLabel` the mark a set of edges standing on one record wears."
+				},
+				"bands": {
+					"note": "`bands`: a line across the whole pane and a label pinned to the viewport's left edge. Which band a point is in, and what landing there means, stays with the plugin's layout."
+				},
+				"canvas-actions": {
+					"note": "`contextMenu` returns the verbs for whatever was right-clicked — pane, node, edge or band — and `onResetLayout` adds the reset button to the zoom controls."
+				}
+			}
 		}
 	]
 }
