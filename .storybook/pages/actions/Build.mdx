@@ -1,0 +1,27 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/actions.md?raw';
+import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
+import { GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Actions/Build" />
+
+# Actions
+
+<PageNav current="build" />
+
+<GuideSection guide={guide} section="order-and-alignment-actionrow" />
+
+<Recipe of={ActionRowStories.DestructiveFirst} caption="A destructive action beside a safe primary, leftmost." />
+
+<Recipe of={ActionRowStories.Stretch} caption="A column narrower than about 280px: every button stretches, primary lowest." />
+
+<GuideSection guide={guide} section="size" />
+
+<Recipe of={ActionRowStories.CardFooter} caption="A card footer." />
+
+<GuideSection guide={guide} section="icons" />
+
+<Recipe of={ActionRowStories.WithIcon} caption={<>The icon goes in <code>icon</code>, never in the label.</>} />
+
+<GuideSection guide={guide} section="destructive-confirmation" />

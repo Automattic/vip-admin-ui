@@ -1,0 +1,105 @@
+/* Docs-page furniture for .storybook/docs/blocks.js, in WPDS tokens so the
+   pages read as the system they document. */
+
+.sb-page-nav ul {
+	display: flex;
+	gap: var(--wpds-dimension-gap-lg);
+	margin: 0 0 var(--wpds-dimension-gap-2xl);
+	padding: 0;
+	list-style: none;
+	border-bottom: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+}
+
+.sb-page-nav li > * {
+	display: block;
+	padding-block: var(--wpds-dimension-padding-sm);
+	font-size: var(--wpds-typography-font-size-md);
+	text-decoration: none;
+}
+
+.sb-page-nav [aria-current="page"] {
+	color: var(--wpds-color-foreground-content-neutral);
+	font-weight: var(--wpds-typography-font-weight-emphasis);
+	box-shadow: inset 0 calc(-1 * var(--wpds-border-width-focus)) 0 var(--wpds-color-stroke-interactive-brand);
+}
+
+.sb-specimen {
+	margin: var(--wpds-dimension-gap-lg) 0;
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	overflow: hidden;
+}
+
+.sb-specimen__stage {
+	padding: var(--wpds-dimension-padding-2xl);
+	background: var(--wpds-color-background-surface-neutral);
+}
+
+/* Storybook's Source block brings its own margin and radius. */
+.sb-specimen .docblock-source {
+	margin: 0;
+	border-radius: 0;
+	border-inline: 0;
+}
+
+.sb-specimen__caption {
+	display: flex;
+	gap: var(--wpds-dimension-gap-md);
+	justify-content: space-between;
+	padding: var(--wpds-dimension-padding-sm) var(--wpds-dimension-padding-md);
+	font-size: var(--wpds-typography-font-size-sm);
+	border-top: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	background: var(--wpds-color-background-surface-neutral-weak);
+}
+
+.sb-specimen[data-tone="do"] .sb-specimen__caption {
+	border-top: var(--wpds-border-width-md) solid var(--wpds-color-stroke-surface-success-strong);
+}
+
+.sb-specimen[data-tone="dont"] .sb-specimen__caption {
+	border-top: var(--wpds-border-width-md) solid var(--wpds-color-stroke-surface-error-strong);
+}
+
+/* Doubled class: Storybook's docs container zeroes block margins on divs. */
+.sb-do-dont.sb-do-dont {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+	gap: var(--wpds-dimension-gap-lg);
+	margin: var(--wpds-dimension-gap-lg) 0;
+}
+
+.sb-do-dont .sb-specimen {
+	margin: 0;
+}
+
+.sb-anatomy__stage {
+	position: relative;
+	padding: var(--wpds-dimension-padding-3xl) var(--wpds-dimension-padding-2xl);
+	border: var(--wpds-border-width-xs) solid var(--wpds-color-stroke-surface-neutral);
+	border-radius: var(--wpds-border-radius-md);
+	background: var(--wpds-color-background-surface-neutral);
+}
+
+.sb-anatomy__marker {
+	position: absolute;
+	translate: -50% -50%;
+	color: var(--wpds-color-foreground-interactive-brand);
+	font-size: var(--wpds-typography-font-size-lg);
+	line-height: 1;
+	pointer-events: none;
+}
+
+/* Count with the same nine glyphs the markers draw. */
+@counter-style sb-anatomy {
+	system: fixed;
+	symbols: "\2776" "\2777" "\2778" "\2779" "\277A" "\277B" "\277C" "\277D" "\277E";
+	suffix: " ";
+}
+
+.sb-anatomy__legend {
+	list-style: sb-anatomy;
+}
+
+.sb-anatomy__legend ::marker {
+	color: var(--wpds-color-foreground-interactive-brand);
+}

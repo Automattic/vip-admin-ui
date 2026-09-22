@@ -49,5 +49,12 @@ loupe check              # design-system conformance
   which the build excludes.
 - **No product vocabulary** in code, props, classes, or docs, and no private
   issue identifiers anywhere.
+- **Docs pages.** A family converted to three pages (`Actions` so far) lives in
+  `.storybook/pages/<family>/{Usage,Build,Reference}.mdx`, built from
+  `.storybook/docs/blocks.js`. The guide in `docs/` stays the only copy of
+  each rule: pages render it a `##` section at a time with `<GuideSection>`
+  and put recipes, do/don'ts and the anatomy between. Every section appears on
+  exactly one page. Add the family to `FAMILY_PAGES` in
+  `.storybook/docs/guide-sections.js` and remove its `Guidelines/` page.
 - Suppress a Loupe finding only with `wpds-allow <ruleId> -- <reason>` on the
   anchored line or the line above it.

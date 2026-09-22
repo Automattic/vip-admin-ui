@@ -1,0 +1,56 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+import { Button } from '@wordpress/components';
+
+import guide from '../../../docs/actions.md?raw';
+import { ActionRow } from '../../../src/actions/ActionRow';
+import { DoDont, GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Actions/Usage" />
+
+# Actions
+
+<PageNav current="usage" />
+
+<GuideSection guide={guide} section="intro" />
+
+<GuideSection guide={guide} section="tldr" />
+
+<GuideSection guide={guide} section="weight-what-variant-means" />
+
+<DoDont
+  do={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="secondary">Export</Button>
+      <Button variant="primary">Save</Button>
+    </ActionRow>
+  }
+  doCaption="One primary: the thing the user came to do."
+  dont={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary">Export</Button>
+      <Button variant="primary">Save</Button>
+    </ActionRow>
+  }
+  dontCaption="Two primaries. Neither one reads as the point of the surface."
+/>
+
+<DoDont
+  do={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary" isDestructive>Delete</Button>
+    </ActionRow>
+  }
+  doCaption="Red on an action that can't be undone."
+  dont={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary" isDestructive>Publish</Button>
+    </ActionRow>
+  }
+  dontCaption="Red as a warning on something reversible. Give it a confirm instead."
+/>
+
+<GuideSection guide={guide} section="vocabulary" />

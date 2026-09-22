@@ -1,0 +1,33 @@
+import { ArgTypes, Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/actions.md?raw';
+import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
+import { Anatomy, GuideSection, PageNav, TestingStatus } from '../../docs/blocks';
+
+<Meta title="Actions/Reference" />
+
+# Actions
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={ActionRowStories.WithSecondary}
+  parts={[
+    { label: 'Row', description: 'ActionRow: right-aligned, with a small gap between buttons.', selector: '.vipui-action-row', edge: 'left' },
+    { label: 'Dismiss', description: 'Tertiary, first.', selector: '.vipui-action-row > :nth-child(1)' },
+    { label: 'Secondary', description: 'Any number, between.', selector: '.vipui-action-row > :nth-child(2)' },
+    { label: 'Primary', description: 'At most one, last.', selector: '.vipui-action-row > :nth-child(3)' },
+  ]}
+/>
+
+## Props
+
+<ArgTypes of={ActionRowStories} />
+
+<GuideSection guide={guide} section="accessibility-floor" />
+
+## Testing status
+
+<TestingStatus of={[ActionRowStories]} />

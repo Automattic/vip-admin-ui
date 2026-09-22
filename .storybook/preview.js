@@ -5,9 +5,20 @@ import '../src/styles/tokens.css';
 import '../src/styles/palette.css';
 import '../src/styles/reset.css';
 import './preview.css';
+import './docs/docs.css';
+
+import * as wpComponents from '@wordpress/components';
 
 import { StringsProvider } from '../src/strings';
 import { strings } from './strings';
+
+// WPDS components are forwardRefs with no displayName, so a story's dynamic
+// source prints `<React.ForwardRef>`. Name them after their export, here only.
+for ( const [ name, component ] of Object.entries( wpComponents ) ) {
+	if ( component?.$$typeof && ! component.displayName ) {
+		component.displayName = name;
+	}
+}
 
 /** @type { import('@storybook/react-vite').Preview } */
 const preview = {
@@ -35,7 +46,6 @@ const preview = {
 					'Introduction',
 					'Guidelines',
 					[
-						'Actions',
 						'Modals',
 						'Settings',
 						'Inspector',
@@ -45,6 +55,7 @@ const preview = {
 					],
 					'Foundations',
 					'Actions',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Modals',
 					'Settings',
 					'Inspector',

@@ -22,7 +22,7 @@ const jsxInJs = {
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
-	stories: [ './pages/*.mdx', '../src/**/*.stories.js' ],
+	stories: [ './pages/**/*.mdx', '../src/**/*.stories.js' ],
 	addons: [
 		'@storybook/addon-docs',
 		'@storybook/addon-a11y',
