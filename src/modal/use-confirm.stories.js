@@ -7,13 +7,11 @@ import { useConfirm } from './use-confirm';
 
 export default {
 	title: 'Modals/useConfirm',
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
 	parameters: {
-		docs: {
-			description: {
-				component:
-					'`const [ confirm, confirmDialog ] = useConfirm();` — `await confirm( message, { title, confirmLabel, cancelLabel, isDestructive } )` resolves `true` or `false`. Render `confirmDialog` once.',
-			},
-		},
+		// The play opens the dialog; a frame keeps it off the docs page.
+		docs: { story: { inline: false, iframeHeight: 360 } },
 	},
 };
 
@@ -39,8 +37,28 @@ function Demo( { message, options, trigger } ) {
 		</Stack>
 	);
 }
+Demo.displayName = 'Demo';
 
 export const Destructive = {
+	parameters: {
+		docs: {
+			source: {
+				code: `const [ confirm, confirmDialog ] = useConfirm();
+
+const onDelete = async () => {
+	if ( await confirm( __( '“Weekly roundup” moves to the trash.', 'my-plugin' ), {
+		title: __( 'Delete post?', 'my-plugin' ),
+		confirmLabel: __( 'Delete', 'my-plugin' ),
+		isDestructive: true,
+	} ) ) {
+		remove();
+	}
+};
+
+return <>{ confirmDialog }<Button isDestructive onClick={ onDelete }>…</Button></>;`,
+			},
+		},
+	},
 	render: () => (
 		<Demo
 			trigger="Delete post"
@@ -69,8 +87,16 @@ export const Destructive = {
 	},
 };
 
-/** No options: the title and both labels come from the plugin's strings. */
 export const Defaults = {
+	parameters: {
+		docs: {
+			source: {
+				code: `if ( await confirm( __( 'Clear every filter on this view?', 'my-plugin' ) ) ) {
+	resetFilters();
+}`,
+			},
+		},
+	},
 	render: () => (
 		<Demo
 			trigger="Reset filters"

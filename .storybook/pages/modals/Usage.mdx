@@ -1,0 +1,41 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/modals.md?raw';
+import * as ModalStories from '../../../src/modal/ModalActions.stories';
+import { GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Modals/Usage" />
+
+# Modals
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={ModalStories.Form} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use a modal for a short task the user finishes or dismisses before going back to the page, such as adding an item or confirming a change.
+- Use `useConfirm` for a yes/no question.
+- Use an informational modal, with one Close button, for something the user needs to read before going on.
+
+### When not to use
+
+- Do not use a modal for a long form or a whole screen of settings. Use a settings screen instead.
+- Do not use a modal to explain a single setting. Use `InfoTip` or `help` text in place.
+- Do not use `window.confirm()`. Use `useConfirm` instead.
+
+<GuideSection guide={guide} section="tldr" />
+
+<GuideSection guide={guide} section="width-size-only" />
+
+## Related
+
+- **`ActionRow`**: the same button row outside a modal. See [Actions](./?path=/docs/actions-usage--docs).
+- **`SettingsSection`**: a settings screen, for work too long for a modal. See [Settings](./?path=/docs/settings-usage--docs).
+- **`InspectorDangerZone`**: an inspector's destructive control, which confirms with `useConfirm`. See [Inspector](./?path=/docs/inspector-usage--docs).

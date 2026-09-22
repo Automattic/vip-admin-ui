@@ -1,0 +1,97 @@
+import { ArgTypes, Meta, Source } from '@storybook/addon-docs/blocks';
+import { Button } from '@wordpress/components';
+
+import guide from '../../../docs/modals.md?raw';
+import { ModalActions } from '../../../src/modal/ModalActions';
+import * as ModalStories from '../../../src/modal/ModalActions.stories';
+import * as ConfirmStories from '../../../src/modal/use-confirm.stories';
+import { ConventionLink, DoDont, GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Modals/Build" />
+
+# Modals
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="build" />
+
+## Designing with it
+
+<GuideSection guide={guide} section="header" demote />
+
+<GuideSection guide={guide} section="footer-modalactions" demote />
+
+<DoDont
+  do={
+    <ModalActions>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary">Add source</Button>
+    </ModalActions>
+  }
+  doCaption="Place Cancel first and the primary last."
+  dont={
+    <ModalActions>
+      <Button variant="primary">Add source</Button>
+      <Button variant="tertiary">Cancel</Button>
+    </ModalActions>
+  }
+  dontCaption="Do not place the primary first. The user looks for it on the right."
+/>
+
+<GuideSection guide={guide} section="body-modalbody" demote />
+
+<GuideSection guide={guide} section="pending-errors-dismissing" demote />
+
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Write the title. A dynamic or user-supplied title needs a one-line ellipsis.
+- Choose the `size` for the content.
+- Mark whether the modal is blocking. A blocking modal has no close button and ignores Escape.
+- Write the error message for each way the action can fail.
+
+## Coding with it
+
+### Import
+
+<Source language="js" code="import { ModalActions, ModalBody, useConfirm } from '@automattic/vip-admin-ui';" dark />
+
+<Recipe of={ModalStories.Form} caption="A form: ModalBody holds the fields, ModalActions the buttons." />
+
+### Props
+
+<ArgTypes of={ModalStories} />
+
+The table does not show the following:
+
+- `ModalBody` takes `gap`, a WPDS gap size that defaults to `md`, and `className`.
+- `ModalActions` and `ModalBody` pass no other prop on.
+
+### Recipes
+
+#### Informational
+
+<Recipe of={ModalStories.Informational} caption="Something to read, with one Close button." />
+
+#### Saving
+
+<Recipe of={ModalStories.Saving} caption="While saving, both buttons are disabled and Save shows it is busy." />
+
+#### With an error
+
+<Recipe of={ModalStories.WithError} caption="The error is a Notice at the top of the body." />
+
+#### Blocking
+
+<Recipe of={ModalStories.Blocking} caption="The user has to act before the modal closes." />
+
+<GuideSection guide={guide} section="useconfirm" demote />
+
+<Recipe of={ConfirmStories.Destructive} caption="A destructive confirmation with its own title and verb." />
+
+<Recipe of={ConfirmStories.Defaults} caption="With no options, the title and labels come from StringsProvider." />
+
+### Considerations
+
+- Words `useConfirm` shows without options come from the plugin's strings. <ConventionLink name="strings" />
