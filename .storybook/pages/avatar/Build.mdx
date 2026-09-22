@@ -1,0 +1,48 @@
+import { Controls, Meta, Source } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/avatar.md?raw';
+import * as AvatarStories from '../../../src/avatar/Avatar.stories';
+import { GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Avatar/Build" />
+
+# Avatar
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="build" />
+
+## Designing with it
+
+<GuideSection guide={guide} section="actors-that-arent-people" demote />
+
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Show the actor's name as text beside every avatar. The avatar has no accessible name of its own.
+- Choose the icon for each kind of actor that is not a person, and use it everywhere that actor appears.
+
+## Coding with it
+
+### Import
+
+<Source language="js" code="import { Avatar } from '@automattic/vip-admin-ui';" dark />
+
+<GuideSection guide={guide} section="why-it-exists" demote />
+
+### Props
+
+<Controls of={AvatarStories.Initials} />
+
+The table does not show the following:
+
+- `name` is required. It is the source of the initials.
+- `size` accepts `sm` and `2xs` only.
+- `src` and `icon` are optional. `icon` replaces the initials, and a picture that loads replaces both.
+
+### Recipes
+
+#### Mixed actors in a row
+
+<Recipe of={AvatarStories.InARow} caption="A picture, initials and an icon line up in one column." />

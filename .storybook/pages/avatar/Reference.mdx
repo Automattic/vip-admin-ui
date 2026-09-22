@@ -1,0 +1,68 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/avatar.md?raw';
+import * as AvatarStories from '../../../src/avatar/Avatar.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNote,
+  DevNotesToggle,
+  DevSection,
+  GuideSection,
+  PageNav,
+  SpecimenTable,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Avatar/Reference" />
+
+# Avatar
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={AvatarStories.Picture}
+  parts={[
+    { label: 'Box', description: 'A fixed circle. Its size comes from the size prop.', note: <>Base UI <code>Avatar.Root</code>, <code>.vipui-avatar</code>.</>, selector: '.vipui-avatar', edge: 'left' },
+    { label: 'Picture', description: 'Fills the box when the image loads.', note: <>Base UI <code>Avatar.Image</code>, with <code>alt=""</code>.</>, selector: '.vipui-avatar__image', edge: 'top' },
+    { label: 'Fallback', description: 'Initials or an icon, when there is no picture.', note: <>Base UI <code>Avatar.Fallback</code>, <code>.vipui-avatar__initials</code>.</>, selector: '.vipui-avatar__initials' },
+  ]}
+/>
+
+## States
+
+<SpecimenTable
+  head={['State', 'Trigger']}
+  rows={[
+    { of: AvatarStories.Picture, cells: ['Picture', 'The image loads'], note: <><code>src</code> is set and loads.</> },
+    { of: AvatarStories.Initials, cells: ['Initials', 'No image'], note: <>No <code>src</code>.</> },
+    { of: AvatarStories.BrokenImage, cells: ['Initials', 'The image fails to load'], note: <><code>src</code> is set and fails.</> },
+    { of: AvatarStories.Glyph, cells: ['Icon', 'The actor is not a person'], note: <><code>icon</code> is set. It replaces the initials.</> },
+  ]}
+/>
+
+## Style
+
+### Interactive states
+
+The avatar has no pointer or keyboard treatment.
+
+### Typography
+
+Initials use the `heading-sm` text style.<DevNote><code>font: var(--vipui-text-heading-sm)</code></DevNote>
+
+### Structure
+
+The box has a fixed size and does not shrink beside a long name. Its radius and initials type come from the package tokens. <Convention name="setup" />
+
+<GuideSection guide={guide} section="accessibility" />
+
+The avatar is not focusable.
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[AvatarStories]} />
+</DevSection>
