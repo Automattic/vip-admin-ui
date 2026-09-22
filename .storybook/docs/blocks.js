@@ -6,7 +6,7 @@
  * what the page shows is what `test:stories` checks.
  */
 /* global ResizeObserver, MutationObserver */
-import { useContext, useEffect, useRef, useState } from 'react';
+import { isValidElement, useContext, useEffect, useRef, useState } from 'react';
 import {
 	AnchorMdx,
 	CodeOrSourceMdx,
@@ -38,14 +38,16 @@ const MARKDOWN_OPTIONS = {
  * One `##` section of a guide in `docs/`, heading included. `section="intro"`
  * is the lede under the guide's title.
  *
- * @param {Object} props
- * @param {string} props.guide   The guide, imported `?raw`.
- * @param {string} props.section The heading's slug.
+ * @param {Object}  props
+ * @param {string}  props.guide    The guide, imported `?raw`.
+ * @param {string}  props.section  The heading's slug.
+ * @param {boolean} [props.demote] Render its headings a level down, under a page's own `##`.
  */
-export function GuideSection( { guide, section } ) {
+export function GuideSection( { guide, section, demote = false } ) {
+	const markdown = guideSection( guide, section );
 	return (
 		<Markdown options={ MARKDOWN_OPTIONS }>
-			{ guideSection( guide, section ) }
+			{ demote ? markdown.replace( /^#+ /gm, '#$&' ) : markdown }
 		</Markdown>
 	);
 }
@@ -165,9 +167,9 @@ export function Recipe( { of, caption } ) {
  * A right and a wrong way, side by side, the verdict on the caption strip.
  *
  * @param {Object} props
- * @param {*}      props.do          The right way, rendered.
+ * @param {*}      props.do          The right way: a story, or JSX to render.
  * @param {*}      props.doCaption
- * @param {*}      props.dont        The wrong way, rendered.
+ * @param {*}      props.dont        The wrong way: a story, or JSX to render.
  * @param {*}      props.dontCaption
  */
 export function DoDont( { do: doExample, doCaption, dont, dontCaption } ) {
@@ -179,7 +181,12 @@ export function DoDont( { do: doExample, doCaption, dont, dontCaption } ) {
 			].map( ( [ tone, verdict, example, caption ] ) => (
 				<figure key={ tone } className="sb-specimen" data-tone={ tone }>
 					<div className="sb-specimen__stage sb-unstyled">
-						<Ground>{ example }</Ground>
+						{ isValidElement( example ) ? (
+							<Ground>{ example }</Ground>
+						) : (
+							// A story brings the preview's decorators.
+							<Story of={ example } />
+						) }
 					</div>
 					<figcaption className="sb-specimen__caption">
 						<span>
@@ -272,12 +279,32 @@ export function Anatomy( { of, parts } ) {
 			<ol className="sb-anatomy__legend">
 				{ parts.map( ( { label, description } ) => (
 					<li key={ label }>
-						<strong>{ label }</strong>
-						{ description && <> — { description }</> }
+						<strong>{ label }.</strong> { description }
 					</li>
 				) ) }
 			</ol>
 		</figure>
+	);
+}
+
+/* ─── Developer section ─────────────────────────────────────────── */
+
+/**
+ * A developer-only block behind a heading that opens it. A native `<details>`,
+ * so find-in-page opens it on a match.
+ *
+ * @param {Object} props
+ * @param {string} props.title
+ * @param {*}      props.children
+ */
+export function DevSection( { title, children } ) {
+	return (
+		<details className="sb-dev-section">
+			<summary>
+				<h2>{ title }</h2>
+			</summary>
+			{ children }
+		</details>
 	);
 }
 

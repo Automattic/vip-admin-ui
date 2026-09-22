@@ -1,3 +1,4 @@
+import { expect } from 'storybook/test';
 import { Button } from '@wordpress/components';
 import { plus } from '@wordpress/icons';
 
@@ -51,6 +52,14 @@ export const Stretch = {
 			</Button>
 		</ActionRow>
 	),
+	play: async ( { canvas } ) => {
+		const buttons = canvas.getAllByRole( 'button' );
+		const row = buttons[ 0 ].parentElement.getBoundingClientRect().width;
+		for ( const button of buttons ) {
+			await expect( button.getBoundingClientRect().width ).toBe( row );
+		}
+		await expect( buttons.at( -1 ) ).toHaveTextContent( 'Send to review' );
+	},
 };
 
 /** A destructive action next to a safe primary goes leftmost. */
@@ -64,6 +73,11 @@ export const DestructiveFirst = {
 			<Button variant="primary">Save</Button>
 		</ActionRow>
 	),
+	play: async ( { canvas } ) => {
+		const buttons = canvas.getAllByRole( 'button' );
+		await expect( buttons[ 0 ] ).toHaveTextContent( 'Delete' );
+		await expect( buttons.at( -1 ) ).toHaveTextContent( 'Save' );
+	},
 };
 
 /** Card footers and table cells take `size="small"`. */

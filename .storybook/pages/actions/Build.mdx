@@ -1,27 +1,78 @@
-import { Meta } from '@storybook/addon-docs/blocks';
+import { Controls, Meta, Source } from '@storybook/addon-docs/blocks';
+import { Button } from '@wordpress/components';
 
 import guide from '../../../docs/actions.md?raw';
+import { ActionRow } from '../../../src/actions/ActionRow';
 import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
-import { GuideSection, PageNav, Recipe } from '../../docs/blocks';
+import { DoDont, GuideSection, PageNav, Recipe } from '../../docs/blocks';
 
 <Meta title="Actions/Build" />
 
 # Actions
 
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
 <PageNav current="build" />
 
-<GuideSection guide={guide} section="order-and-alignment-actionrow" />
+## Designing with it
 
-<Recipe of={ActionRowStories.DestructiveFirst} caption="A destructive action beside a safe primary, leftmost." />
+<GuideSection guide={guide} section="order-and-alignment-actionrow" demote />
 
-<Recipe of={ActionRowStories.Stretch} caption="A column narrower than about 280px: every button stretches, primary lowest." />
+<DoDont
+  do={ActionRowStories.DestructiveFirst}
+  doCaption="Place a destructive action leftmost when the group has a safe primary."
+  dont={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary">Save</Button>
+      <Button variant="tertiary" isDestructive>Delete</Button>
+    </ActionRow>
+  }
+  dontCaption="Do not place it rightmost, where the user expects the primary."
+/>
 
-<GuideSection guide={guide} section="size" />
+<GuideSection guide={guide} section="size" demote />
 
-<Recipe of={ActionRowStories.CardFooter} caption="A card footer." />
+<GuideSection guide={guide} section="icons" demote />
 
-<GuideSection guide={guide} section="icons" />
+<GuideSection guide={guide} section="vocabulary" demote />
 
-<Recipe of={ActionRowStories.WithIcon} caption={<>The icon goes in <code>icon</code>, never in the label.</>} />
+<GuideSection guide={guide} section="destructive-confirmation" demote />
 
-<GuideSection guide={guide} section="destructive-confirmation" />
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Mark the primary action, or mark that the group has none.
+- Mark every irreversible action, and write its confirm's title, message and verb.
+- Write the accessible name for every icon-only button. The tooltip shows the same text.
+
+## Coding with it
+
+### Import
+
+<Source language="js" code="import { ActionRow } from '@automattic/vip-admin-ui';" dark />
+
+<Recipe of={ActionRowStories.Default} caption="Dismiss first, primary last." />
+
+### Props
+
+<Controls of={ActionRowStories.Default} />
+
+The table does not show the following:
+
+- `ActionRow` takes `children`, `stretch` and `className`, and passes no other prop on.
+
+### Recipes
+
+#### In a narrow column
+
+<Recipe of={ActionRowStories.Stretch} caption="In a column narrower than about 280px, every button stretches. The primary is lowest." />
+
+#### In a card footer
+
+<Recipe of={ActionRowStories.CardFooter} caption="Card footers use small buttons." />
+
+#### With an icon
+
+<Recipe of={ActionRowStories.WithIcon} caption={<>Pass the icon as <code>icon</code>, not in the label.</>} />

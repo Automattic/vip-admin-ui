@@ -1,12 +1,14 @@
-import { ArgTypes, Meta } from '@storybook/addon-docs/blocks';
+import { Meta } from '@storybook/addon-docs/blocks';
 
 import guide from '../../../docs/actions.md?raw';
 import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
-import { Anatomy, GuideSection, PageNav, TestingStatus } from '../../docs/blocks';
+import { Anatomy, DevSection, GuideSection, PageNav, TestingStatus } from '../../docs/blocks';
 
 <Meta title="Actions/Reference" />
 
 # Actions
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
 
 <PageNav current="reference" />
 
@@ -15,19 +17,34 @@ import { Anatomy, GuideSection, PageNav, TestingStatus } from '../../docs/blocks
 <Anatomy
   of={ActionRowStories.WithSecondary}
   parts={[
-    { label: 'Row', description: 'ActionRow: right-aligned, with a small gap between buttons.', selector: '.vipui-action-row', edge: 'left' },
-    { label: 'Dismiss', description: 'Tertiary, first.', selector: '.vipui-action-row > :nth-child(1)' },
-    { label: 'Secondary', description: 'Any number, between.', selector: '.vipui-action-row > :nth-child(2)' },
+    { label: 'Row', description: 'The ActionRow. It is right-aligned, with a small gap between buttons.', selector: '.vipui-action-row', edge: 'bottom' },
+    { label: 'Dismiss', description: 'A tertiary button, first.', selector: '.vipui-action-row > :nth-child(1)' },
+    { label: 'Secondary', description: 'Any number, between the dismiss and the primary.', selector: '.vipui-action-row > :nth-child(2)' },
     { label: 'Primary', description: 'At most one, last.', selector: '.vipui-action-row > :nth-child(3)' },
   ]}
 />
 
-## Props
+## Style
 
-<ArgTypes of={ActionRowStories} />
+### Interactive states
 
-<GuideSection guide={guide} section="accessibility-floor" />
+The row has no pointer or keyboard treatment. Each button has the states of the WPDS `Button`.
 
-## Testing status
+## Accessibility
 
-<TestingStatus of={[ActionRowStories]} />
+### Keyboard interactions
+
+<table>
+  <thead>
+    <tr><th>Key</th><th>Action</th></tr>
+  </thead>
+  <tbody>
+    <tr><td><kbd>Tab</kbd></td><td>Moves focus to the next button, in the order the row shows.</td></tr>
+  </tbody>
+</table>
+
+<GuideSection guide={guide} section="accessibility-floor" demote />
+
+<DevSection title="Testing status">
+  <TestingStatus of={[ActionRowStories]} />
+</DevSection>

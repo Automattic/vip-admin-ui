@@ -103,3 +103,11 @@
 .sb-anatomy__legend ::marker {
 	color: var(--wpds-color-foreground-interactive-brand);
 }
+
+.sb-dev-section > summary {
+	cursor: pointer;
+}
+
+.sb-dev-section > summary > h2 {
+	display: inline;
+}
