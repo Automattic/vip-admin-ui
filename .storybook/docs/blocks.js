@@ -6,7 +6,14 @@
  * what the page shows is what `test:stories` checks.
  */
 /* global ResizeObserver, MutationObserver */
-import { isValidElement, useContext, useEffect, useRef, useState } from 'react';
+import {
+	isValidElement,
+	useContext,
+	useEffect,
+	useRef,
+	useState,
+	useSyncExternalStore,
+} from 'react';
 import {
 	AnchorMdx,
 	CodeOrSourceMdx,
@@ -17,9 +24,12 @@ import {
 	Story,
 	useOf,
 } from '@storybook/addon-docs/blocks';
+import { Icon, Popover } from '@wordpress/ui';
+import { info } from '@wordpress/icons';
 
 import { StringsProvider } from '../../src/strings';
 import { strings } from '../strings';
+import { CONVENTIONS } from './conventions';
 import { guideHref, guideSection } from './guide-sections';
 
 /* ─── Guide text ──────────────────────────────────────────────────── */
@@ -210,10 +220,10 @@ const GLYPHS = [ ...'❶❷❸❹❺❻❼❽❾' ];
  * legend generated from the same list, so the numbers can't disagree with the
  * picture. A part whose selector matches nothing is listed without a marker.
  *
- * @param {Object}                                      props
- * @param {Object}                                      props.of    The story on the stage.
- * @param {Array<{label, description, selector, edge}>} props.parts `edge` is
- *                                                                  `top` (default), `bottom`, `left` or `right`.
+ * @param {Object}                                            props
+ * @param {Object}                                            props.of    The story on the stage.
+ * @param {Array<{label, description, note, selector, edge}>} props.parts `edge` is
+ *                                                                        `top` (default), `bottom`, `left` or `right`.
  */
 export function Anatomy( { of, parts } ) {
 	const stage = useRef( null );
@@ -277,9 +287,10 @@ export function Anatomy( { of, parts } ) {
 				) }
 			</div>
 			<ol className="sb-anatomy__legend">
-				{ parts.map( ( { label, description } ) => (
+				{ parts.map( ( { label, description, note } ) => (
 					<li key={ label }>
 						<strong>{ label }.</strong> { description }
+						{ note && <DevNote>{ note }</DevNote> }
 					</li>
 				) ) }
 			</ol>
@@ -287,24 +298,253 @@ export function Anatomy( { of, parts } ) {
 	);
 }
 
-/* ─── Developer section ─────────────────────────────────────────── */
+/* ─── Disclosure ───────────────────────────────────────────────────── */
+
+// Every note registers here, so the toggle in Reference's status line can
+// count them and flip all of them between popovers and inline text.
+const notes = { count: 0, inline: false, listeners: new Set() };
+let snapshot = { count: 0, inline: false };
+const publish = () => {
+	snapshot = { count: notes.count, inline: notes.inline };
+	notes.listeners.forEach( ( listener ) => listener() );
+};
+const subscribe = ( listener ) => {
+	notes.listeners.add( listener );
+	return () => notes.listeners.delete( listener );
+};
+const useNotes = () =>
+	useSyncExternalStore(
+		subscribe,
+		() => snapshot,
+		() => snapshot
+	);
 
 /**
- * A developer-only block behind a heading that opens it. A native `<details>`,
- * so find-in-page opens it on a match.
+ * A mechanism behind a claim: an info button at the end of the sentence it
+ * explains, opening the note in a popover so nothing on the page moves.
+ * Reference only. Keep the content inline, since MDX puts it inside a `<p>`.
+ *
+ * @param {Object} props
+ * @param {*}      props.children
+ * @param {string} [props.label]  The button's name and the popover's title.
+ */
+export function DevNote( { children, label = 'Developer note' } ) {
+	const { inline } = useNotes();
+	useEffect( () => {
+		notes.count++;
+		publish();
+		return () => {
+			notes.count--;
+			publish();
+		};
+	}, [] );
+	if ( inline ) {
+		return (
+			<span className="sb-note sb-note--inline">
+				<span className="sb-note__label">{ label }</span> { children }
+			</span>
+		);
+	}
+	return (
+		<Popover.Root>
+			<Popover.Trigger className="sb-note__button" aria-label={ label }>
+				<Icon icon={ info } size={ 16 } />
+			</Popover.Trigger>
+			<Popover.Popup className="sb-note__popup">
+				<Popover.Title className="sb-note__title">
+					{ label }
+				</Popover.Title>
+				{ children }
+			</Popover.Popup>
+		</Popover.Root>
+	);
+}
+
+/** "Show notes inline" with a count, for Reference's status line. */
+export function DevNotesToggle() {
+	const { count, inline } = useNotes();
+	if ( ! count ) {
+		return null;
+	}
+	return (
+		<button
+			type="button"
+			className="sb-notes-toggle"
+			aria-pressed={ inline }
+			onClick={ () => {
+				notes.inline = ! notes.inline;
+				publish();
+			} }
+		>
+			{ inline ? 'Show notes as popovers' : 'Show notes inline' } (
+			{ count })
+		</button>
+	);
+}
+
+/**
+ * A developer-only block behind a heading that opens it. A native
+ * `<details>`, so find-in-page opens it on a match.
  *
  * @param {Object} props
  * @param {string} props.title
+ * @param {string} [props.hint]   What it holds, shown beside the title while closed.
+ * @param {number} [props.level]  2, or 3 for a subsection.
  * @param {*}      props.children
  */
-export function DevSection( { title, children } ) {
+export function DevSection( { title, hint, level = 2, children } ) {
+	const Heading = level === 3 ? 'h3' : 'h2';
 	return (
 		<details className="sb-dev-section">
 			<summary>
-				<h2>{ title }</h2>
+				<Heading>{ title }</Heading>
+				{ hint && (
+					<span className="sb-dev-section__hint">{ hint }</span>
+				) }
 			</summary>
 			{ children }
 		</details>
+	);
+}
+
+/* ─── Conventions ──────────────────────────────────────────────────── */
+
+const CONVENTIONS_HREF = './?path=/docs/conventions--docs';
+
+/**
+ * A mechanism every family shares, on Reference: the canonical sentence in a
+ * note titled "Convention: …", with a link to the Conventions page.
+ *
+ * @param {Object} props
+ * @param {string} props.name   A key of `CONVENTIONS`.
+ * @param {*}      [props.also] Only what this component does differently.
+ */
+export function Convention( { name, also } ) {
+	const convention = CONVENTIONS[ name ];
+	if ( ! convention ) {
+		throw new Error( `Unknown convention "${ name }"` );
+	}
+	return (
+		<DevNote label={ `Convention: ${ convention.title }` }>
+			{ convention.body } { also }{ ' ' }
+			<AnchorMdx href={ `${ CONVENTIONS_HREF }#${ name }` }>
+				Conventions
+			</AnchorMdx>
+		</DevNote>
+	);
+}
+
+/**
+ * The same convention as a link, for Usage and Build, where nothing is
+ * disclosed: "See Layout on the Conventions page."
+ *
+ * @param {Object} props
+ * @param {string} props.name A key of `CONVENTIONS`.
+ */
+export function ConventionLink( { name } ) {
+	const convention = CONVENTIONS[ name ];
+	if ( ! convention ) {
+		throw new Error( `Unknown convention "${ name }"` );
+	}
+	return (
+		<>
+			See{ ' ' }
+			<AnchorMdx href={ `${ CONVENTIONS_HREF }#${ name }` }>
+				{ convention.title }
+			</AnchorMdx>{ ' ' }
+			on the Conventions page.
+		</>
+	);
+}
+
+/* ─── Tables ───────────────────────────────────────────────────────── */
+
+/**
+ * A spec table with a live column: one row per state, size or mode, each row
+ * a story. `note` puts a DevNote at the end of the row's last text cell.
+ *
+ * @param {Object}                   props
+ * @param {string[]}                 props.head Headings for the text cells.
+ * @param {Array<{of, cells, note}>} props.rows
+ */
+export function SpecimenTable( { head, rows } ) {
+	return (
+		<table className="sb-specimen-table">
+			<thead>
+				<tr>
+					{ head.map( ( cell ) => (
+						<th key={ cell }>{ cell }</th>
+					) ) }
+					<th>Example</th>
+				</tr>
+			</thead>
+			<tbody>
+				{ rows.map( ( { of, cells, note }, i ) => (
+					<tr key={ i }>
+						{ cells.map( ( cell, j ) => (
+							<td key={ j }>
+								{ cell }
+								{ note && j === cells.length - 1 && (
+									<DevNote>{ note }</DevNote>
+								) }
+							</td>
+						) ) }
+						<td className="sb-specimen-table__stage">
+							<Story of={ of } />
+						</td>
+					</tr>
+				) ) }
+			</tbody>
+		</table>
+	);
+}
+
+/**
+ * `Shift` + `Tab` → keycaps, with what's between the backticks left as text.
+ *
+ * @param {string} keys The keys, in backticks.
+ * @return {Array} Keycaps and text.
+ */
+const keycaps = ( keys ) =>
+	keys
+		.split( /(`[^`]+`)/ )
+		.filter( Boolean )
+		.map( ( part, i ) =>
+			part.startsWith( '`' ) ? (
+				<kbd key={ i }>{ part.slice( 1, -1 ) }</kbd>
+			) : (
+				part
+			)
+		);
+
+/**
+ * The keyboard table, one row per key: `[ keys, action, note? ]`. Keys are
+ * written in backticks, as the guides write them.
+ *
+ * @param {Object}  props
+ * @param {Array[]} props.rows
+ */
+export function KeyTable( { rows } ) {
+	return (
+		<table className="sb-key-table">
+			<thead>
+				<tr>
+					<th>Key</th>
+					<th>Action</th>
+				</tr>
+			</thead>
+			<tbody>
+				{ rows.map( ( [ keys, action, note ] ) => (
+					<tr key={ keys }>
+						<td>{ keycaps( keys ) }</td>
+						<td>
+							{ action }
+							{ note && <DevNote>{ note }</DevNote> }
+						</td>
+					</tr>
+				) ) }
+			</tbody>
+		</table>
 	);
 }
 

@@ -53,7 +53,7 @@ describe( 'guide sections', () => {
 			'./?path=/docs/actions-usage--docs'
 		);
 		expect( guideHref( 'modals.md#useconfirm' ) ).toBe(
-			'./?path=/docs/guidelines-modals--docs#useconfirm'
+			'./?path=/docs/modals-usage--docs#useconfirm'
 		);
 		expect( guideHref( 'i18n.md' ) ).toBe(
 			'./?path=/docs/guidelines-strings--docs'

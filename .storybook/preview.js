@@ -42,25 +42,25 @@ const preview = {
 		},
 		options: {
 			storySort: {
+				// A family's three docs pages come first, then its components'
+				// stories. Storybook reads this statically, so no constants.
 				order: [
 					'Introduction',
+					'Conventions',
 					'Guidelines',
-					[
-						'Modals',
-						'Settings',
-						'Inspector',
-						'Graph',
-						'Avatar',
-						'Strings',
-					],
 					'Foundations',
 					'Actions',
 					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Modals',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Settings',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Inspector',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Graph',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 					'Avatar',
+					[ 'Usage', 'Build', 'Reference', '*' ],
 				],
 			},
 		},

@@ -61,7 +61,14 @@ export function guideSlugs( markdown ) {
  * links to its Usage page; one that doesn't yet still has a Guidelines page.
  * `i18n.md` is the Strings guide.
  */
-export const FAMILY_PAGES = new Set( [ 'actions' ] );
+export const FAMILY_PAGES = new Set( [
+	'actions',
+	'modals',
+	'settings',
+	'inspector',
+	'graph',
+	'avatar',
+] );
 
 /**
  * The Storybook href for a link between guides (`modals.md#useconfirm`), or
