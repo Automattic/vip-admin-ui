@@ -56,5 +56,8 @@ loupe check              # design-system conformance
   and put recipes, do/don'ts and the anatomy between. Every section appears on
   exactly one page. Add the family to `FAMILY_PAGES` in
   `.storybook/docs/guide-sections.js` and remove its `Guidelines/` page.
+  Restart `npm run storybook` after a page gains an import of a stories
+  file. The dev server doesn't re-index a page's stories imports, so `of`
+  fails on it with "resolved to a 'component or unknown' type" until restart.
 - Suppress a Loupe finding only with `wpds-allow <ruleId> -- <reason>` on the
   anchored line or the line above it.
