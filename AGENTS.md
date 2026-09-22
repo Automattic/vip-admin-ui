@@ -10,6 +10,7 @@ npm as `@automattic/vip-admin-ui` and bundled into each consuming plugin. Read
 npm run storybook        # dev server on :6006
 npm run lint             # ESLint + stylelint (unknown --wpds-* tokens fail)
 npm test                 # Jest: the pure logic in test/ (edge routing, etc.)
+npm run test:stories     # every story in Chromium: play functions + WCAG 2.2 AA axe
 npm run build            # babel: build-module/ (ESM) and build/ (CJS)
 npm run build-storybook  # must pass before a change is done
 loupe check              # design-system conformance
@@ -41,7 +42,10 @@ loupe check              # design-system conformance
 - **Peers, not dependencies,** for anything that must be one copy per bundle
   (React, `@wordpress/*` that carries context, `@dnd-kit/*`).
 - **Every component gets stories** covering its states, and `build-storybook`
-  must pass. Story fixtures that aren't stories go in `story-fixtures.js`,
+  and `test:stories` must pass. Each story is an axe fixture; an interaction
+  a reader would try (open, collapse, add, confirm) gets a `play`. A known
+  violation is `a11y: { test: 'todo' }` with a comment naming the defect,
+  never a new one. Story fixtures that aren't stories go in `story-fixtures.js`,
   which the build excludes.
 - **No product vocabulary** in code, props, classes, or docs, and no private
   issue identifiers anywhere.

@@ -1,3 +1,4 @@
+import { expect, userEvent, within } from 'storybook/test';
 import { useState } from '@wordpress/element';
 
 import {
@@ -77,7 +78,20 @@ export const DuplicateKey = {
 	),
 };
 
-export const EmptyList = { render: () => <Demo initial={ [] } { ...keyed } /> };
+export const EmptyList = {
+	render: () => <Demo initial={ [] } { ...keyed } />,
+	play: async ( { canvas, canvasElement } ) => {
+		const body = within( canvasElement.ownerDocument.body );
+		await expect( canvas.getByText( 'No fields yet.' ) ).toBeVisible();
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Add field' } )
+		);
+		await userEvent.click(
+			await body.findByRole( 'menuitem', { name: /Text/ } )
+		);
+		await expect( canvas.queryByText( 'No fields yet.' ) ).toBeNull();
+	},
+};
 
 /** No `renderConfig`: rows select elsewhere instead of opening a popover. */
 export const Navigable = {

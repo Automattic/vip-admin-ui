@@ -15,6 +15,20 @@ const preview = {
 	parameters: {
 		layout: 'padded',
 		controls: { expanded: true },
+		// Every story is a WCAG 2.2 AA fixture: `npm run test:stories` fails on
+		// a violation. Opt a story out with `a11y: { test: 'off' }` and a reason.
+		a11y: {
+			test: 'error',
+			options: {
+				runOnly: [
+					'wcag2a',
+					'wcag2aa',
+					'wcag21a',
+					'wcag21aa',
+					'wcag22aa',
+				],
+			},
+		},
 		options: {
 			storySort: {
 				order: [

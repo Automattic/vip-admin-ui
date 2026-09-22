@@ -1,3 +1,4 @@
+import { expect, userEvent } from 'storybook/test';
 import { useState } from '@wordpress/element';
 import { ToggleControl } from '@wordpress/components';
 import { Stack, Text } from '@wordpress/ui';
@@ -137,6 +138,14 @@ export const Panel = {
 				</InspectorShell>
 			</InspectorCollapseContext.Provider>
 		);
+	},
+	play: async ( { canvas } ) => {
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Collapse panel' } )
+		);
+		await expect(
+			canvas.getByRole( 'button', { name: 'Expand panel' } )
+		).toHaveAttribute( 'aria-expanded', 'false' );
 	},
 };
 

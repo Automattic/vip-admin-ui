@@ -109,6 +109,7 @@ npm install
 npm run storybook        # http://localhost:6006
 npm run lint             # ESLint + stylelint (WPDS token names included)
 npm test                 # Jest unit tests for the pure logic
+npm run test:stories     # stories in Chromium: play functions + axe (WCAG 2.2 AA)
 npm run build            # build-module/ and build/
 npm run build-storybook  # static Storybook in storybook-static/
 loupe check              # design-system conformance, if Loupe is installed

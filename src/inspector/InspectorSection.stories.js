@@ -1,3 +1,4 @@
+import { expect, userEvent, waitFor } from 'storybook/test';
 import { ToggleControl, TextControl } from '@wordpress/components';
 import { Stack, Text } from '@wordpress/ui';
 
@@ -88,6 +89,17 @@ export const Collapsible = {
 			/>
 		</InspectorSection>
 	),
+	play: async ( { canvas } ) => {
+		const trigger = canvas.getByRole( 'button', { name: /Automation/ } );
+		await expect( trigger ).toHaveAttribute( 'aria-expanded', 'false' );
+		await userEvent.click( trigger );
+		await expect( trigger ).toHaveAttribute( 'aria-expanded', 'true' );
+		// The panel animates open. FormToggle's own input is opacity 0, so
+		// look for its label.
+		await waitFor( () =>
+			expect( canvas.getByText( 'Run checks on entry' ) ).toBeVisible()
+		);
+	},
 };
 
 /** Sections in a panel body: the parent Stack owns the gap, each section draws its rule. */
