@@ -1,0 +1,35 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/graph.md?raw';
+import * as GraphStories from '../../../src/graph/GraphCanvas.stories';
+import { GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Graph/Usage" />
+
+# Graph
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={GraphStories.Default} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use a graph canvas when the user edits a set of steps and the connections between them.
+- Use it when where a step sits on the canvas means something to the user, such as a band it belongs to.
+
+### When not to use
+
+- Do not use it for steps in one fixed order. Use a list instead.
+- Do not use it to choose where an edge goes by name. Put that choice in the inspector.
+
+<GuideSection guide={guide} section="tldr" />
+
+## Related
+
+- **Inspector**: the panel that floats over the canvas's right edge and edits the selection. See [Inspector](./?path=/docs/inspector-usage--docs).

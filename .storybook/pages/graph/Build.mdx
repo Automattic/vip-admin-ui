@@ -1,0 +1,58 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/graph.md?raw';
+import * as GraphStories from '../../../src/graph/GraphCanvas.stories';
+import { GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Graph/Build" />
+
+# Graph
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="build" />
+
+## Designing with it
+
+<GuideSection guide={guide} section="with-the-inspector" demote />
+
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Write the words on every card, edge pill, exit, band and menu. The kit adds none of its own.
+- Write screen-reader text for any state a card shows another way, such as its edge to End.
+- Specify how the inspector changes an edge's ends. Dragging an end is pointer-only.
+- Name each menu for what it acts on, such as "Step actions".
+
+## Coding with it
+
+<GuideSection guide={guide} section="setup" demote />
+
+<GuideSection guide={guide} section="a-whole-canvas" demote />
+
+<GuideSection guide={guide} section="graphcanvas" demote />
+
+<Recipe of={GraphStories.ResetLayout} caption="A reset button joins the zoom controls when there is a layout to reset." />
+
+<GuideSection guide={guide} section="cards-graph_node_type" demote />
+
+<Recipe of={GraphStories.NamedExits} caption="An exit badge per way out. Each edge leaves by its exit's glyph and tone." />
+
+<GuideSection guide={guide} section="start-and-end-graph_terminal_type" demote />
+
+<GuideSection guide={guide} section="edges" demote />
+
+<Recipe of={GraphStories.Routing} caption="A line behind a card breaks short of it. Lines travelling together form a bundle." />
+
+<GuideSection guide={guide} section="rewiring" demote />
+
+<Recipe of={GraphStories.Rewiring} caption="Select an edge and drag a ring to move that end." />
+
+<GuideSection guide={guide} section="bands" demote />
+
+<Recipe of={GraphStories.Bands} caption="Three bands, one selected and one tinted as a drop target." />
+
+<GuideSection guide={guide} section="right-click-menu" demote />
+
+<Recipe of={GraphStories.ContextMenu} caption="Right-click a card or the canvas. The menu is named for what it acts on." />

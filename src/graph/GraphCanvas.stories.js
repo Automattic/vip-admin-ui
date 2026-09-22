@@ -1,3 +1,4 @@
+import { expect, fireEvent, userEvent, waitFor, within } from 'storybook/test';
 import { useState } from '@wordpress/element';
 import { plus, trash } from '@wordpress/icons';
 
@@ -14,15 +15,29 @@ import {
 export default {
 	title: 'Graph/GraphCanvas',
 	component: GraphCanvas,
-	parameters: { layout: 'fullscreen' },
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: {
+		layout: 'fullscreen',
+		docs: { source: { type: 'dynamic' } },
+	},
 	decorators: [
-		( Story ) => (
-			<div className="sb-graph-frame">
+		// The canvas fills its container. On the canvas that is the viewport; on
+		// a docs page, 100vh is the whole page, so the frame gets a fixed height.
+		( Story, { viewMode } ) => (
+			<div
+				className="sb-graph-frame"
+				style={ viewMode === 'docs' ? { height: 560 } : undefined }
+			>
 				<Story />
 			</div>
 		),
 	],
 };
+
+// A graph story's dynamic snippet would print every fixture node and edge.
+// These are the props a plugin writes instead.
+const snippet = ( code ) => ( { docs: { source: { code } } } );
 
 /**
  * Drag a card to move it, drag off a card's grip onto another to connect them,
@@ -128,6 +143,21 @@ export const Default = {
  * carry the link mark.
  */
 export const NamedExits = {
+	parameters: snippet( `const exits = [
+	{ id: 'pass', icon: check, tone: 'success', title: __( 'On pass', 'my-plugin' ), routed: true },
+	{ id: 'fail', icon: close, tone: 'error', title: __( 'On fail', 'my-plugin' ), routed: true },
+];
+
+const node = {
+	id: 'check',
+	type: GRAPH_NODE_TYPE,
+	...GRAPH_NODE_SIZE,
+	position,
+	data: { label: __( 'Automated check', 'my-plugin' ), exits },
+};
+
+// An edge leaving by an exit names it in sourceHandle.
+const edge = { id: 'check:pass->scheduled', source: 'check', target: 'scheduled', sourceHandle: 'pass' };` ),
 	render: function Render() {
 		return <GraphCanvas { ...useGraph( EXITS_FLOW ).props } fitView />;
 	},
@@ -137,6 +167,12 @@ export const NamedExits = {
 export const CardStates = {
 	// a11y todo: `.vipui-graph-node__meta` on a selected card is 4.11:1.
 	parameters: { a11y: { test: 'todo' } },
+	play: async ( { canvas } ) => {
+		// A warning's strings are the flag's accessible name.
+		await expect(
+			await canvas.findByRole( 'img', { name: 'Nothing leads here.' } )
+		).toBeInTheDocument();
+	},
 	render: function Render() {
 		return (
 			<GraphCanvas
@@ -153,6 +189,14 @@ export const CardStates = {
  * a bundle at one pitch. Drag the cards to watch the ports re-plan.
  */
 export const Routing = {
+	parameters:
+		snippet( `// Plain React Flow edges. The canvas plans every path.
+const edges = [
+	{ id: 'intake->archive', source: 'intake', target: 'archive', data: { label: __( 'Skip triage', 'my-plugin' ) } },
+	{ id: 'research->write', source: 'research', target: 'write' },
+];
+
+<GraphCanvas nodes={ nodes } edges={ edges } fitView />` ),
 	render: function Render() {
 		return <GraphCanvas { ...useGraph( ROUTING_FLOW ).props } fitView />;
 	},
@@ -164,6 +208,16 @@ export const Routing = {
  * where it would land, grey where nothing changes, red where it's refused.
  */
 export const Rewiring = {
+	parameters: snippet( `<GraphCanvas
+	{ ...props }
+	selectedEdgeId={ selectedEdgeId }
+	onReconnect={ ( edge, end, nodeId ) => moveEnd( edge.id, end, nodeId ) }
+	reconnectVerdict={ ( edge, end, nodeId ) =>
+		canMoveEnd( edge, end, nodeId ) ? 'valid' : 'invalid'
+	}
+	moveSourceLabel={ __( 'Drag to move where this edge starts', 'my-plugin' ) }
+	moveTargetLabel={ __( 'Drag to move where this edge goes', 'my-plugin' ) }
+/>` ),
 	render: function Render() {
 		const { props, setEdges } = useGraph( FLOW, {
 			edge: 'Copy edit->Legal',
@@ -195,7 +249,21 @@ export const Rewiring = {
  */
 export const Bands = {
 	// a11y todo: React Flow's attribution link is 2.76:1 on the band background.
-	parameters: { a11y: { test: 'todo' } },
+	parameters: {
+		a11y: { test: 'todo' },
+		...snippet( `<GraphCanvas
+	{ ...props }
+	bands={ bands }
+	selectedBand={ selectedBand }
+	onSelectBand={ setSelectedBand }
+	dropBand={ bandUnderDrag }
+/>` ),
+	},
+	play: async ( { canvas } ) => {
+		const draft = await canvas.findByRole( 'button', { name: /Draft/ } );
+		await userEvent.click( draft );
+		await expect( draft ).toHaveClass( 'is-selected' );
+	},
 	render: function Render() {
 		const [ selectedBand, setSelectedBand ] = useState( 'pending' );
 		return (
@@ -216,6 +284,16 @@ export const Bands = {
 
 /** A "Reset layout" button joins the zoom controls when there's a layout to reset. */
 export const ResetLayout = {
+	parameters: snippet( `<GraphCanvas
+	{ ...props }
+	onResetLayout={ resetLayout }
+	resetLayoutLabel={ __( 'Reset layout', 'my-plugin' ) }
+/>` ),
+	play: async ( { canvas } ) => {
+		await expect(
+			await canvas.findByRole( 'button', { name: 'Reset layout' } )
+		).toBeInTheDocument();
+	},
 	render: function Render() {
 		return (
 			<GraphCanvas
@@ -224,6 +302,34 @@ export const ResetLayout = {
 				onResetLayout={ () => {} }
 				resetLayoutLabel="Reset layout"
 			/>
+		);
+	},
+};
+
+/** Right-click the canvas: the menu names what it acts on and takes focus. */
+export const ContextMenu = {
+	...Default,
+	parameters: snippet( `contextMenu={ ( target ) =>
+	target.kind === 'node'
+		? { label: __( 'Step actions', 'my-plugin' ), items: [ /* … */ ] }
+		: { label: __( 'Canvas actions', 'my-plugin' ), items: [ /* … */ ] }
+}` ),
+	play: async ( { canvasElement } ) => {
+		const pane = await waitFor( () => {
+			const found = canvasElement.querySelector( '.react-flow__pane' );
+			if ( ! found ) {
+				throw new Error( 'No pane yet' );
+			}
+			return found;
+		} );
+		fireEvent.contextMenu( pane, { clientX: 400, clientY: 40 } );
+		const menu = await within(
+			canvasElement.ownerDocument.body
+		).findByRole( 'menu', { name: 'Canvas actions' } );
+		await waitFor( () =>
+			expect(
+				within( menu ).getByRole( 'menuitem', { name: 'Add step' } )
+			).toHaveFocus()
 		);
 	},
 };
