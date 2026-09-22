@@ -1,0 +1,38 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/inspector.md?raw';
+import * as ShellStories from '../../../src/inspector/InspectorShell.stories';
+import { GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Inspector/Usage" />
+
+# Inspector
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={ShellStories.Panel} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use an inspector for the options of one selected item on a canvas, a graph or a list.
+- Use it when the options change with the selection and the surface stays in view.
+
+### When not to use
+
+- Do not use it for settings that apply to a whole screen. Use a settings section instead.
+- Do not use it for a task that needs the user's full attention. Use a modal instead.
+
+<GuideSection guide={guide} section="tldr" />
+
+## Related
+
+- **`SettingsSection`**: groups settings on a settings screen. See [Settings](./?path=/docs/settings-usage--docs).
+- **`useConfirm`**: confirms the danger zone's irreversible action. See [Modals](./?path=/docs/modals-usage--docs).
+- **`GraphCanvas`**: a canvas an inspector docks over. See [Graph](./?path=/docs/graph-usage--docs).
+- **`ActionRow`**: the action group outside an inspector. See [Actions](./?path=/docs/actions-usage--docs).

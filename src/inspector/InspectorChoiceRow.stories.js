@@ -1,3 +1,4 @@
+import { expect } from 'storybook/test';
 import { useState } from '@wordpress/element';
 
 import { InspectorChoiceRow } from './InspectorChoiceRow';
@@ -6,6 +7,9 @@ import { ROLES } from './story-fixtures';
 export default {
 	title: 'Inspector/InspectorChoiceRow',
 	component: InspectorChoiceRow,
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: { docs: { source: { type: 'dynamic' } } },
 	decorators: [
 		( Story ) => (
 			<div className="sb-inspector-column">
@@ -37,8 +41,30 @@ function Demo( { initial } ) {
 	);
 }
 
+Demo.displayName = 'Demo';
+
 export const Names = {
+	parameters: {
+		docs: {
+			source: {
+				code: `<InspectorChoiceRow
+	label={ __( 'Who can move posts on', 'my-plugin' ) }
+	options={ roles } // [ { value, label, help? } ]
+	selected={ selected }
+	onToggle={ toggleRole }
+	noneLabel={ __( 'Everyone', 'my-plugin' ) }
+	countLabel={ ( n ) => sprintf( _n( '%d role', '%d roles', n, 'my-plugin' ), n ) }
+	unknownHelp={ __( 'Not a role on this site.', 'my-plugin' ) }
+/>`,
+			},
+		},
+	},
 	render: () => <Demo initial={ [ 'editor', 'author' ] } />,
+	play: async ( { canvas } ) => {
+		await expect(
+			canvas.getByRole( 'button', { name: /Who can move posts on/ } )
+		).toHaveTextContent( /Editor, Author/ );
+	},
 };
 
 /** Past the character budget, the value counts instead of naming. */
@@ -48,6 +74,11 @@ export const Count = {
 			initial={ [ 'administrator', 'editor', 'author', 'contributor' ] }
 		/>
 	),
+	play: async ( { canvas } ) => {
+		await expect(
+			canvas.getByRole( 'button', { name: /Who can move posts on/ } )
+		).toHaveTextContent( '4 roles' );
+	},
 };
 
 export const None = { render: () => <Demo initial={ [] } /> };

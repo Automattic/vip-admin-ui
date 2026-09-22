@@ -7,6 +7,9 @@ import { Fact, SortableFact } from './InspectorFacts';
 export default {
 	title: 'Inspector/Fact',
 	component: Fact,
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: { docs: { source: { type: 'dynamic' } } },
 	subcomponents: { SortableFact },
 	args: { label: 'Post status', value: 'Pending' },
 	decorators: [

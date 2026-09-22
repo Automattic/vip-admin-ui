@@ -17,6 +17,9 @@ import {
 export default {
 	title: 'Inspector/InspectorFieldList',
 	component: InspectorFieldList,
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: { docs: { source: { type: 'dynamic' } } },
 	subcomponents: { InspectorFieldListAdd },
 	decorators: [
 		( Story ) => (
@@ -54,6 +57,8 @@ function Demo( { initial, ...props } ) {
 	);
 }
 
+Demo.displayName = 'Demo';
+
 const keyed = {
 	keyOf: ( field ) => field.key,
 	isStarted: ( field ) => Boolean( field.label ),
@@ -62,7 +67,53 @@ const keyed = {
 
 /** Click a row to configure it; drag the grip (or focus it and use the arrow keys) to reorder. */
 export const Configurable = {
+	// The story's state lives in a helper the snippet would print as `<Demo>`.
+	parameters: {
+		docs: {
+			source: {
+				code: `<InspectorSection
+	title={ __( 'Fields', 'my-plugin' ) }
+	actions={
+		<InspectorFieldListAdd
+			label={ __( 'Add field', 'my-plugin' ) }
+			addOptions={ kinds }
+			onAdd={ ( type ) => setFields( [ ...fields, newField( type ) ] ) }
+		/>
+	}
+>
+	<InspectorFieldList
+		items={ fields }
+		onChange={ setFields }
+		keyOf={ ( field ) => field.key }
+		isStarted={ ( field ) => Boolean( field.label ) }
+		describe={ describeField }
+		renderConfig={ ( { item, problem, update } ) => (
+			<TextControl
+				__next40pxDefaultSize
+				__nextHasNoMarginBottom
+				label={ __( 'Key', 'my-plugin' ) }
+				value={ item.key }
+				help={ problem?.full }
+				onChange={ ( key ) => update( { key } ) }
+			/>
+		) }
+		removeLabel={ __( 'Remove field', 'my-plugin' ) }
+		emptyLabel={ __( 'No fields yet.', 'my-plugin' ) }
+	/>
+</InspectorSection>`,
+			},
+		},
+	},
 	render: () => <Demo initial={ FIELDS } { ...keyed } />,
+	play: async ( { canvas, canvasElement } ) => {
+		const body = within( canvasElement.ownerDocument.body );
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Configure Headline' } )
+		);
+		await expect(
+			await body.findByRole( 'textbox', { name: 'Key' } )
+		).toHaveValue( 'headline' );
+	},
 };
 
 /** The second item to use a key is the collision, flagged on its row as it is typed. */
@@ -95,6 +146,21 @@ export const EmptyList = {
 
 /** No `renderConfig`: rows select elsewhere instead of opening a popover. */
 export const Navigable = {
+	parameters: {
+		docs: {
+			source: {
+				code: `<InspectorFieldList
+	items={ steps }
+	onChange={ setSteps }
+	describe={ describeStep }
+	sortable={ false }
+	onItemSelect={ ( step ) => selectStep( step.id ) }
+	removeLabel={ __( 'Remove step', 'my-plugin' ) }
+	emptyLabel={ __( 'No steps yet.', 'my-plugin' ) }
+/>`,
+			},
+		},
+	},
 	render: () => (
 		<Demo initial={ FIELDS } sortable={ false } onItemSelect={ () => {} } />
 	),

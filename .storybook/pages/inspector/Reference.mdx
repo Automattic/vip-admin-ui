@@ -1,0 +1,142 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import * as ChoiceRowStories from '../../../src/inspector/InspectorChoiceRow.stories';
+import * as DangerZoneStories from '../../../src/inspector/InspectorDangerZone.stories';
+import * as FactStories from '../../../src/inspector/InspectorFacts.stories';
+import * as FieldListStories from '../../../src/inspector/InspectorFieldList.stories';
+import * as SectionStories from '../../../src/inspector/InspectorSection.stories';
+import * as ShellStories from '../../../src/inspector/InspectorShell.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNote,
+  DevNotesToggle,
+  DevSection,
+  KeyTable,
+  PageNav,
+  SpecimenTable,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Inspector/Reference" />
+
+# Inspector
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={ShellStories.Panel}
+  parts={[
+    { label: 'Heading', description: 'The eyebrow names the kind of item, and the title names which one.', note: <><code>eyebrow</code> and <code>title</code> on <code>InspectorShell</code>.</>, selector: '.vipui-inspector__heading', edge: 'left' },
+    { label: 'Collapse toggle', description: 'The only control in the header. It hides the body.', note: <>Present only inside an <code>InspectorCollapseContext</code> provider.</>, selector: '.vipui-inspector__collapse', edge: 'left' },
+    { label: 'Section', description: 'A title and its controls, with a divider above every section but the first.', note: <><code>InspectorSection</code></>, selector: '.vipui-inspector-section', edge: 'left' },
+    { label: 'Read-out row', description: 'A name at the start and its value at the end.', note: <><code>Fact</code>, in a <code>vipui-inspector__facts</code> list.</>, selector: '.vipui-inspector__fact', edge: 'left' },
+    { label: 'Info tip', description: 'Explains a row that has nothing to press.', note: <><code>InfoTip</code>, from a row's <code>tip</code>.</>, selector: '.vipui-inspector-infotip', edge: 'top' },
+    { label: 'Choice row', description: 'Names the choices, or counts them. Pressing it opens the checkboxes.', note: <><code>InspectorChoiceRow</code></>, selector: '.vipui-inspector-section:nth-of-type(2) .vipui-inspector__fact', edge: 'left' },
+    { label: 'Field list', description: 'Rows the author adds, orders and removes. Add is in the section heading.', note: <><code>InspectorFieldList</code>, with <code>InspectorFieldListAdd</code> in the section's <code>actions</code>.</>, selector: '.vipui-inspector-field-list', edge: 'left' },
+    { label: 'Collapsible section', description: 'A section closed by default, with its summary beside the title.', note: <><code>collapsible</code> and <code>summary</code> on <code>InspectorSection</code>.</>, selector: '.vipui-inspector-section--collapsible', edge: 'left' },
+    { label: 'Danger zone', description: 'The delete button at the end of the body, below a heavier divider.', note: <><code>InspectorDangerZone</code></>, selector: '.vipui-inspector-danger', edge: 'left' },
+  ]}
+/>
+
+## States
+
+### Panel
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: ShellStories.NotCollapsible, cells: ['Not collapsible', 'The container does not provide collapse state.'], note: <>No <code>InspectorCollapseContext</code> provider, so no toggle renders.</> },
+  ]}
+/>
+
+### Section
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: SectionStories.Default, cells: ['Open', 'Default.'] },
+    { of: SectionStories.WithHelp, cells: ['With help', 'A line under the title explains the group.'], note: <><code>help</code></> },
+  ]}
+/>
+
+### Read-out row
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: FactStories.Default, cells: ['Inert', 'The row reports a setting and opens nothing.'] },
+    { of: FactStories.Empty, cells: ['Empty', 'No value is set. The placeholder is italic.'], note: <><code>empty</code></> },
+    { of: FactStories.WithTip, cells: ['With tip', 'An inert row has an explanation.'], note: <><code>tip</code>, rendered as an <code>InfoTip</code>.</> },
+    { of: FactStories.Selectable, cells: ['Selectable', 'The row opens what it reports. The row is the button.'], note: <><code>onSelect</code> and <code>selectLabel</code>.</> },
+    { of: FactStories.Disabled, cells: ['Disabled', 'The row cannot be used right now. Its text is muted.'], note: <><code>className="is-disabled"</code></> },
+    { of: FactStories.Sortable, cells: ['Sortable', 'The author sets the order. A grip moves the row.'], note: <><code>SortableFact</code> with <code>dragLabel</code>, inside a dnd-kit <code>SortableContext</code>.</> },
+  ]}
+/>
+
+### Field list
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: FieldListStories.EmptyList, cells: ['Empty', 'The list has no items. Add stays in the heading.'], note: <><code>emptyLabel</code></> },
+    { of: FieldListStories.DuplicateKey, cells: ['Duplicate key', 'A later item uses a key an earlier one has. Its row is flagged as the author types.'], note: <>Needs <code>keyOf</code> and <code>isStarted</code>. The message reaches <code>renderConfig</code> as <code>problem</code>.</> },
+  ]}
+/>
+
+### Choice row
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: ChoiceRowStories.Count, cells: ['Counted', 'The names no longer fit, so the row counts them.'], note: <><code>countLabel</code></> },
+    { of: ChoiceRowStories.UnknownValue, cells: ['Unknown value', 'A stored value has no option on this site. It keeps its box, with an explanation.'], note: <><code>unknownHelp</code></> },
+  ]}
+/>
+
+### Danger zone
+
+<SpecimenTable
+  head={['State', 'When']}
+  rows={[
+    { of: DangerZoneStories.Unavailable, cells: ['Unavailable', 'The item cannot be deleted yet. The reason is shown under the button.'], note: <><code>disabled</code> and <code>description</code>. The button stays focusable.</> },
+    { of: DangerZoneStories.Busy, cells: ['Busy', 'The delete is in progress.'], note: <><code>busy</code></> },
+  ]}
+/>
+
+## Style
+
+### Interactive states
+
+A row that opens something is underlined on hover. A collapsible section's title and chevron change tone on hover. A field list's grips and remove buttons appear on hover, or when the row has focus. <Convention name="focus-ring" also="Rows, grips and section toggles use the WPDS focus-ring style." />
+
+## Accessibility
+
+### Keyboard interactions
+
+<KeyTable
+  rows={[
+    ['`Tab`', 'Moves to the next control: the collapse toggle, section toggles, rows, grips, remove buttons and the danger zone, in order.'],
+    ['`Enter` or `Space`', 'On a row, opens its popover or selects the item. On a section toggle, opens or closes the section.'],
+    ['`Escape`', 'Closes the open popover.'],
+    ['`Space` or `Enter` on a grip', 'Picks up the row. Pressed again, drops it.', <>The dnd-kit <code>KeyboardSensor</code> with <code>sortableKeyboardCoordinates</code>.</>],
+    ['`↑` or `↓`', 'Moves a picked-up row.'],
+    ['`Escape` while moving a row', 'Cancels the move.'],
+  ]}
+/>
+
+### Labeling and states
+
+- The collapse toggle is named "Collapse panel" or "Expand panel", and reports whether the panel is open. <DevNote>`aria-expanded`. The words come from `StringsProvider` (`collapsePanel`, `expandPanel`).</DevNote>
+- A row that opens something is a button named for its item. A grip has its own name, different from the row's. <DevNote>`selectLabel` on `Fact`. In a field list, `configureItem`, `selectItem` and `reorderItem` from `StringsProvider`.</DevNote>
+- An info tip is named for the setting it explains. <DevNote>`aboutSetting( about )` from `StringsProvider`.</DevNote>
+- A closed section's controls are still found by find-in-page, which opens the section. <DevNote>`hiddenUntilFound` on the collapsible panel.</DevNote>
+- An unavailable delete button stays in the tab order, and its reason is announced. <DevNote>`accessibleWhenDisabled` on the `Button`, and `aria-describedby` to the `description`.</DevNote>
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[ShellStories, SectionStories, FactStories, FieldListStories, ChoiceRowStories, DangerZoneStories]} />
+</DevSection>
