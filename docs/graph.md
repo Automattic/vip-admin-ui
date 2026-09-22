@@ -1,24 +1,24 @@
 # Graph canvas
 
-A node/edge editor on [React Flow](https://reactflow.dev): cards connected by
-edges that route themselves. The kit covers the canvas's own grammar: how a card
-looks and where its exits are, how edges pick their ports and pass behind cards,
-how a selected edge's ends are dragged, bands across the canvas, and the
-right-click menu. What the graph *means* stays with your plugin: your model,
-your layout, and every "can this connect to that" decision.
+A graph canvas is a node and edge editor on [React Flow](https://reactflow.dev):
+cards connected by edges that route themselves. The kit covers the canvas's own
+grammar: how a card looks and where its exits are, how edges pick their ports
+and pass behind cards, how a selected edge's ends are dragged, bands across the
+canvas, and the right-click menu. What the graph means stays with your plugin:
+your model, your layout, and every "can this connect to that" decision.
 
 ## TL;DR
 
 | Concern | Rule |
 |---|---|
-| Ownership | The flow is controlled. You project your model into `nodes` and `edges`, position them, and handle every callback. The canvas never changes structure on its own. |
+| Ownership | The flow is controlled. You project your model into `nodes` and `edges`, position them, and handle every callback. The canvas does not change structure on its own. |
 | Layout | Yours. The canvas draws nodes where you put them and tells you when one is dragged (`onNodesChange`). |
 | Cards | `type: GRAPH_NODE_TYPE`, sized `GRAPH_NODE_SIZE`. Every state is node data. Cards carry no buttons. |
 | Start and End | `type: GRAPH_TERMINAL_TYPE`, `data.kind` `'start'` or `'end'`. Not selectable, draggable, deletable or focusable. |
-| Edges | Plain React Flow edges. The canvas defaults their `type` to `GRAPH_EDGE_TYPE` and plans them all together. Don't draw your own paths. |
+| Edges | Plain React Flow edges. The canvas defaults their `type` to `GRAPH_EDGE_TYPE` and plans them all together. Do not draw your own paths. |
 | Named exits | A card whose ways out mean different things declares `data.exits`. An edge leaving by one sets `sourceHandle` to the exit's id. |
 | Selection | Yours: `selectedNodeId` and `selectedEdgeId` in, `onSelectNode` and `onSelectEdge` out. Click, Enter and Space all select. |
-| Rewiring | Select an edge and drag a ring. Pass `reconnectVerdict` so the line says what a drop will do *before* it's released. |
+| Rewiring | Select an edge and drag a ring. Pass `reconnectVerdict` so the line says what a drop will do before it is released. |
 | Words | Every string is a prop or node/edge data. The kit adds no `StringsProvider` keys. |
 | Glyphs | Every `icon` is an `@wordpress/icons` glyph, filled or stroked. |
 
@@ -31,7 +31,7 @@ npm install @xyflow/react
 `@xyflow/react` is a peer dependency: one copy per bundle, since it carries
 React context.
 
-Import React Flow's stylesheet once, **from your entry file**, not from a
+Import React Flow's stylesheet once, from your entry file, not from a
 component in a lazily loaded chunk:
 
 ```js
@@ -111,14 +111,14 @@ new object on every render makes React Flow remount every node.
 
 ## `GraphCanvas`
 
-Renders its own `ReactFlowProvider`. Anything the table below doesn't list is
+Renders its own `ReactFlowProvider`. Anything the props table does not list is
 passed through to `<ReactFlow>`, like `fitView`, `onInit`, `onNodeDrag`,
 `onNodeDragStop`, `isValidConnection`, `nodesConnectable` or `proOptions`.
 React Flow's attribution stays on unless you pass
 `proOptions={ { hideAttribution: true } }`, which React Flow asks you to do
 only with a Pro subscription. The event
 handlers the canvas owns (clicks, hover, context menus, connect, delete,
-`onNodesChange`) are not overridable. Use the props below instead.
+`onNodesChange`) are not overridable. Use the canvas's own props instead.
 
 | Prop | |
 |---|---|
@@ -137,13 +137,13 @@ handlers the canvas owns (clicks, hover, context menus, connect, delete,
 | `reconnectGhost( { client, position } )` | Where a `'create'` drop's card would land: `{ x, y }` top-left in flow coordinates (plus `width`, `height` if not a card). |
 | `onReconnectToPane( edge, end, { client, position } )` | A `'create'` release on empty canvas. |
 | `moveSourceLabel`, `moveTargetLabel` | Tooltips on the two rings. |
-| `bands`, `selectedBand`, `dropBand`, `onSelectBand( id )` | Screen-space bands. See below. |
+| `bands`, `selectedBand`, `dropBand`, `onSelectBand( id )` | Screen-space bands. See [Bands](#bands). |
 | `contextMenu( target )` | `target` is `{ kind, id, client, position }`, where `kind` is `'pane'`, `'node'`, `'edge'` or `'band'`. Return `{ label, items }` or null. A node or edge with a menu is selected as it opens. One with none falls back to the pane's menu. |
 | `onResetLayout`, `resetLayoutLabel` | Adds a reset button to the zoom controls. |
 | `className`, `children` | On the wrapper, and inside `<ReactFlow>`. |
 
 **Paint order.** Backdrop nodes sit at z-index 0, edges at 1, and cards and
-pills at 2. The canvas fills in the last two. React Flow won't put a node
+pills at 2. The canvas fills in the last two. React Flow does not put a node
 below 0, so the edges are lifted above backdrops rather than the other way
 round.
 
@@ -156,10 +156,10 @@ round.
 | `meta` | A muted footer line: "3 edges". |
 | `badge` | `{ icon, label }`: a brand-toned footer read-out, like "Publishes". |
 | `description` | Screen-reader-only text for state the canvas shows another way, such as the edge to End. |
-| `warnings` | Strings. Any at all turns the card caution-toned and flags its title. The strings are the flag's tooltip and accessible name. |
+| `warnings` | Strings. Any warning turns the card caution-toned and flags its title. The strings are the flag's tooltip and accessible name. |
 | `accent` | A CSS colour: your plugin's tone for a kind of card. Border and a light wash. |
 | `raised` | A heavier shadow, for a card sitting on a band's border. |
-| `exits` | `[ { id, icon, tone, title, routed } ]`. See below. |
+| `exits` | `[ { id, icon, tone, title, routed } ]`. See Named exits. |
 
 A card has one way in and one way out. The whole card is the drop target, and a
 connection starts from the grip that appears on its bottom border on hover.
@@ -173,7 +173,7 @@ glyph is what tells them apart for anyone who can't separate the hues.
 `routed` fills the badge. Dragging from a badge connects with that exit's id
 as `sourceHandle`. Its edge wears the tone and leaves by a disc carrying the
 same glyph, so which line is which is readable at rest. The badges reorder
-to sit over their own edges' ports, so two exits' lines never cross under the
+to sit over their own edges' ports, so two exits' lines do not cross under the
 card.
 
 ## Start and End: `GRAPH_TERMINAL_TYPE`
@@ -192,23 +192,23 @@ tab stops.
 | `linkLabel` | The accessible name of the link mark on the midpoint. Set it on every edge of a set that is one record drawn more than once. Editing one edits all. |
 | `disabled` | Dotted and muted, but still selectable and deletable. |
 
-The routing is not configurable, on purpose. The constants were tuned together
+The routing is not configurable. The constants were tuned together
 against a set of scenarios, and several share one value (`edge-constants.js`).
 What it does:
 
-- **Ports float.** An edge meets each card wherever the line between the two
+- Ports float. An edge meets each card wherever the line between the two
   centres crosses the border, eased off the corners.
-- **Ports are chosen by cost.** Misalignment, S-bends, and arriving from the
+- Ports are chosen by cost. Misalignment, S-bends, and arriving from the
   side of a card below all cost more. Near-ties keep the current choice, so an
   edge doesn't flicker while a card is dragged.
-- **Ports sharing a border spread out** in the order their edges travel, so
+- Ports sharing a border spread out in the order their edges travel, so
   five edges out of one card leave from five places.
-- **Edges travelling together gather into a bundle** at one pitch, and cards
+- Edges travelling together gather into a bundle at one pitch, and cards
   push bundles off their middles.
-- **No obstacle routing.** A line passing behind a card breaks short of it, with
+- There is no obstacle routing. A line passing behind a card breaks short of it, with
   a cup at each end, and the hidden span is dotted over the card. It stays
   readable in a way a line swinging wide around three cards doesn't.
-- **Port jumps ease** rather than snap.
+- Port jumps ease rather than snap.
 
 The end marks (socket, arrowhead, exit disc) and the underpass dots are drawn
 on a layer above the cards, so a card overlapping another can't hide where its
@@ -219,7 +219,7 @@ neighbour's edges attach.
 Select an edge and a ring appears on each end. Drag one onto another card to
 move that end. While the end is held, the line is drawn in the edge's own tone
 where a drop would land, grey where nothing would change, and red where it's
-refused. Letting go never produces a surprise.
+refused.
 
 - Answer `reconnectVerdict` from the same code that performs the move, so what
   the line promises and what the release does are the same thing.
@@ -280,7 +280,7 @@ panel that sits beside this.
 
 ## With the inspector
 
-The canvas runs full-bleed and the inspector ([inspector.md](inspector.md))
+The canvas runs full-bleed and the inspector ([Inspector](inspector.md))
 floats over its right edge. Selection is the link between them. Selecting a
 card or edge opens it in the inspector, and every verb that needs a second node
 to name it (where an edge goes, which card an exit routes to) lives there

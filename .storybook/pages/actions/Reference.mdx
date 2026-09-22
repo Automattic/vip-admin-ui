@@ -1,0 +1,52 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/actions.md?raw';
+import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNotesToggle,
+  DevSection,
+  GuideSection,
+  KeyTable,
+  PageNav,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Actions/Reference" />
+
+# Actions
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={ActionRowStories.WithSecondary}
+  parts={[
+    { label: 'Row', description: 'Holds the buttons, right-aligned, with a small gap between them.', note: <>A <code>Stack</code> from <code>@wordpress/ui</code>, with <code>justify="flex-end"</code> and <code>gap="sm"</code>. <code>className</code> goes on it.</>, selector: '.vipui-action-row', edge: 'bottom' },
+    { label: 'Dismiss', description: 'A tertiary button, first.', note: <><code>variant="tertiary"</code></>, selector: '.vipui-action-row > :nth-child(1)' },
+    { label: 'Secondary', description: 'Any number, between the dismiss and the primary.', note: <><code>variant="secondary"</code></>, selector: '.vipui-action-row > :nth-child(2)' },
+    { label: 'Primary', description: 'At most one, last.', note: <><code>variant="primary"</code></>, selector: '.vipui-action-row > :nth-child(3)' },
+  ]}
+/>
+
+## Style
+
+### Interactive states
+
+The row has no pointer or keyboard treatment. Each button has the states of the WPDS `Button`. <Convention name="focus-ring" />
+
+## Accessibility
+
+### Keyboard interactions
+
+<KeyTable rows={[['`Tab`', 'Moves focus to the next button, in the order the row shows.']]} />
+
+<GuideSection guide={guide} section="accessibility-floor" demote />
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[ActionRowStories]} />
+</DevSection>

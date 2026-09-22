@@ -1,0 +1,14 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import { CONVENTIONS } from '../docs/conventions';
+
+<Meta title="Conventions" />
+
+# Conventions
+
+{Object.entries(CONVENTIONS).map(([name, { title, body }]) => (
+  <section key={name}>
+    <h2 id={name}>{title}</h2>
+    <p>{body}</p>
+  </section>
+))}

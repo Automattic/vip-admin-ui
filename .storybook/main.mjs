@@ -22,8 +22,12 @@ const jsxInJs = {
 
 /** @type { import('@storybook/react-vite').StorybookConfig } */
 const config = {
-	stories: [ './pages/*.mdx', '../src/**/*.stories.js' ],
-	addons: [ '@storybook/addon-docs' ],
+	stories: [ './pages/**/*.mdx', '../src/**/*.stories.js' ],
+	addons: [
+		'@storybook/addon-docs',
+		'@storybook/addon-a11y',
+		'@storybook/addon-vitest',
+	],
 	framework: '@storybook/react-vite',
 	viteFinal: ( viteConfig ) => ( {
 		...viteConfig,

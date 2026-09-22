@@ -1,0 +1,102 @@
+import { Controls, Meta, Source } from '@storybook/addon-docs/blocks';
+import { Button, ToggleControl } from '@wordpress/components';
+import { Stack } from '@wordpress/ui';
+
+import guide from '../../../docs/settings.md?raw';
+import { SettingsFooter } from '../../../src/settings/SettingsFooter';
+import { SettingsSection } from '../../../src/settings/SettingsSection';
+import * as SettingsStories from '../../../src/settings/SettingsSection.stories';
+import { DoDont, GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Settings/Build" />
+
+# Settings
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="build" />
+
+## Designing with it
+
+<GuideSection guide={guide} section="setup-and-page-shell" demote />
+
+<GuideSection guide={guide} section="tabs" demote />
+
+<GuideSection guide={guide} section="sections" demote />
+
+<GuideSection guide={guide} section="helper-text-and-fields" demote />
+
+<GuideSection guide={guide} section="saving" demote />
+
+<DoDont
+  do={
+    <Stack direction="column" gap="xl">
+      <SettingsSection title="Notifications">
+        <ToggleControl __nextHasNoMarginBottom label="Email assignees" checked onChange={() => {}} />
+      </SettingsSection>
+      <SettingsSection title="Publishing">
+        <ToggleControl __nextHasNoMarginBottom label="Lock published posts" checked={false} onChange={() => {}} />
+      </SettingsSection>
+      <SettingsFooter>
+        <Button variant="primary" __next40pxDefaultSize>Save</Button>
+      </SettingsFooter>
+    </Stack>
+  }
+  doCaption="Use one Save for the whole screen."
+  dont={
+    <Stack direction="column" gap="xl">
+      <SettingsSection title="Notifications">
+        <ToggleControl __nextHasNoMarginBottom label="Email assignees" checked onChange={() => {}} />
+        <Button variant="primary" __next40pxDefaultSize>Save</Button>
+      </SettingsSection>
+      <SettingsSection title="Publishing">
+        <ToggleControl __nextHasNoMarginBottom label="Lock published posts" checked={false} onChange={() => {}} />
+        <Button variant="primary" __next40pxDefaultSize>Save</Button>
+      </SettingsSection>
+    </Stack>
+  }
+  dontCaption="Do not put a Save in each section. The user has to check each one."
+/>
+
+<GuideSection guide={guide} section="status-errors-and-empty-states" demote />
+
+<GuideSection guide={guide} section="icons-emoji-and-headings" demote />
+
+<GuideSection guide={guide} section="labels" demote />
+
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Mark where the screen saves: one Save in the footer, the last header action, or none.
+- Write the help text for each control that needs it.
+- Mark the heading level of every title on the screen.
+- Write the loading label when the default string does not say what is loading.
+
+## Coding with it
+
+### Import
+
+<Source language="js" code="import { SettingsSection, SettingsFooter, SettingsLoading } from '@automattic/vip-admin-ui';" dark />
+
+<Recipe of={SettingsStories.Default} caption="A title, a description and the controls." />
+
+### Props
+
+<Controls of={SettingsStories.Default} />
+
+The table does not show the following:
+
+- `SettingsSection` takes `title`, `description` and `children`, and passes no other prop on.
+- `SettingsFooter` takes `children` only. It holds the screen's one primary button.
+- `SettingsLoading` takes `label` only. Without it, the row shows the `loading` string from `StringsProvider`.
+
+### Recipes
+
+#### A whole screen
+
+<Recipe of={SettingsStories.Screen} caption="Sections in a Stack with the 2xl gap, and one Save in the footer." />
+
+#### A section without a description
+
+<Recipe of={SettingsStories.TitleOnly} caption="Leave out the description when it would repeat the title." />

@@ -1,3 +1,4 @@
+import { expect } from 'storybook/test';
 import { Stack, Text } from '@wordpress/ui';
 import { globe } from '@wordpress/icons';
 
@@ -6,8 +7,40 @@ import { Avatar } from './Avatar';
 export default {
 	title: 'Avatar',
 	component: Avatar,
-	args: { name: 'Ada Lovelace', size: 'sm' },
-	argTypes: { size: { control: 'inline-radio', options: [ 'sm', '2xs' ] } },
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: {
+		layout: 'centered',
+		docs: { source: { type: 'dynamic' } },
+	},
+	args: { name: 'Ada Lovelace' },
+	// Docgen reads no rows off the JSDoc for `src`, `icon` and `className`.
+	argTypes: {
+		name: {
+			control: 'text',
+			description: 'Display name. The source of the initials.',
+		},
+		src: {
+			control: 'text',
+			description:
+				'Picture URL. An absent or broken picture falls back to the glyph, then to initials.',
+		},
+		icon: {
+			control: false,
+			description:
+				'A glyph from `@wordpress/icons`, for an actor that is not a person.',
+		},
+		size: {
+			control: 'inline-radio',
+			options: [ 'sm', '2xs' ],
+			description: 'Sets the box, the glyph and how many letters fit.',
+			table: { defaultValue: { summary: 'sm' } },
+		},
+		className: {
+			control: false,
+			description: 'A class for the call site’s own layout.',
+		},
+	},
 };
 
 // A data URI, so the story renders the same offline.
@@ -19,17 +52,30 @@ const PICTURE =
 
 export const Picture = { args: { src: PICTURE } };
 
-/** No `src`, or one that fails to load: the initials take the same box. */
-export const Initials = {};
+export const Initials = {
+	play: async ( { canvas } ) => {
+		await expect( canvas.getByText( 'AL' ) ).toBeVisible();
+	},
+};
+
+export const Size2xs = {
+	name: 'Size 2xs',
+	args: { size: '2xs' },
+	play: async ( { canvas } ) => {
+		await expect( canvas.getByText( 'A' ) ).toBeVisible();
+	},
+};
 
 export const BrokenImage = {
 	args: { src: 'https://invalid.example/missing.png' },
+	play: async ( { canvas } ) => {
+		await expect( await canvas.findByText( 'AL' ) ).toBeVisible();
+		await expect( canvas.queryByRole( 'img' ) ).toBeNull();
+	},
 };
 
-/** An actor that is not a person passes a glyph instead of a picture. */
 export const Glyph = { args: { name: 'Site', icon: globe } };
 
-/** Every call site names the actor beside the avatar; the avatar is decorative. */
 export const InARow = {
 	render: () => (
 		<Stack direction="column" gap="sm">
@@ -45,4 +91,27 @@ export const InARow = {
 			) ) }
 		</Stack>
 	),
+	// The dynamic source would print the map and the icon's inline SVG.
+	parameters: {
+		docs: {
+			source: {
+				code: `import { globe } from '@wordpress/icons';
+
+<Stack direction="column" gap="sm">
+	<Stack align="center" gap="sm">
+		<Avatar src={ ada.avatar } name="Ada Lovelace" size="2xs" />
+		<Text variant="body-sm">Ada Lovelace</Text>
+	</Stack>
+	<Stack align="center" gap="sm">
+		<Avatar name="Grace Hopper" size="2xs" />
+		<Text variant="body-sm">Grace Hopper</Text>
+	</Stack>
+	<Stack align="center" gap="sm">
+		<Avatar name="Site" icon={ globe } size="2xs" />
+		<Text variant="body-sm">Site</Text>
+	</Stack>
+</Stack>`,
+			},
+		},
+	},
 };

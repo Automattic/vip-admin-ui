@@ -1,0 +1,41 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/avatar.md?raw';
+import * as AvatarStories from '../../../src/avatar/Avatar.stories';
+import { GuideSection, PageNav, SpecimenTable } from '../../docs/blocks';
+
+<Meta title="Avatar/Usage" />
+
+# Avatar
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={AvatarStories.InARow} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use an avatar wherever the admin shows who did something, beside that actor's name.
+- Use it for actors that are not people too, such as an agent or the site, so a row of mixed actors lines up.
+
+### When not to use
+
+- Do not use it without the actor's name as text beside it.
+- Do not use it as a profile picture that stands on its own, such as a large image on a user's page.
+
+<GuideSection guide={guide} section="tldr" />
+
+<GuideSection guide={guide} section="sizes" />
+
+<SpecimenTable
+  head={['Size']}
+  rows={[
+    { of: AvatarStories.Initials, cells: [<><code>sm</code> (default)</>] },
+    { of: AvatarStories.Size2xs, cells: [<code>2xs</code>] },
+  ]}
+/>

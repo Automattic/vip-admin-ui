@@ -1,3 +1,4 @@
+import { expect, userEvent } from 'storybook/test';
 import { useState } from '@wordpress/element';
 import { ToggleControl } from '@wordpress/components';
 import { Stack, Text } from '@wordpress/ui';
@@ -23,14 +24,10 @@ import {
 export default {
 	title: 'Inspector/InspectorShell',
 	component: InspectorShell,
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: { docs: { source: { type: 'dynamic' } } },
 	args: { eyebrow: 'Stage', title: 'Legal review' },
-	decorators: [
-		( Story ) => (
-			<div className="sb-inspector-frame">
-				<Story />
-			</div>
-		),
-	],
 };
 
 /**
@@ -39,6 +36,14 @@ export default {
  * the one destructive control ending the body.
  */
 export const Panel = {
+	// A docked column with a fixed height, so the body scrolls.
+	decorators: [
+		( Story ) => (
+			<div className="sb-inspector-frame">
+				<Story />
+			</div>
+		),
+	],
 	render: function Render( args ) {
 		const [ collapsed, setCollapsed ] = useState( false );
 		const [ roles, setRoles ] = useState( [ 'editor' ] );
@@ -138,11 +143,26 @@ export const Panel = {
 			</InspectorCollapseContext.Provider>
 		);
 	},
+	play: async ( { canvas } ) => {
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Collapse panel' } )
+		);
+		await expect(
+			canvas.getByRole( 'button', { name: 'Expand panel' } )
+		).toHaveAttribute( 'aria-expanded', 'false' );
+	},
 };
 
 /** No `InspectorCollapseContext` provider: the panel has no collapse toggle. */
 export const NotCollapsible = {
 	args: { eyebrow: 'Connection', title: 'Start' },
+	decorators: [
+		( Story ) => (
+			<div className="sb-inspector-column">
+				<Story />
+			</div>
+		),
+	],
 	render: ( args ) => (
 		<InspectorShell { ...args }>
 			<Text
@@ -155,4 +175,9 @@ export const NotCollapsible = {
 			</Text>
 		</InspectorShell>
 	),
+	play: async ( { canvas } ) => {
+		await expect(
+			canvas.queryByRole( 'button', { name: /panel/ } )
+		).toBeNull();
+	},
 };

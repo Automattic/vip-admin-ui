@@ -1,3 +1,4 @@
+import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { useState } from '@wordpress/element';
 import { Button } from '@wordpress/components';
 import { Stack, Text } from '@wordpress/ui';
@@ -6,13 +7,11 @@ import { useConfirm } from './use-confirm';
 
 export default {
 	title: 'Modals/useConfirm',
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
 	parameters: {
-		docs: {
-			description: {
-				component:
-					'`const [ confirm, confirmDialog ] = useConfirm();` — `await confirm( message, { title, confirmLabel, cancelLabel, isDestructive } )` resolves `true` or `false`. Render `confirmDialog` once.',
-			},
-		},
+		// The play opens the dialog; a frame keeps it off the docs page.
+		docs: { story: { inline: false, iframeHeight: 360 } },
 	},
 };
 
@@ -38,8 +37,28 @@ function Demo( { message, options, trigger } ) {
 		</Stack>
 	);
 }
+Demo.displayName = 'Demo';
 
 export const Destructive = {
+	parameters: {
+		docs: {
+			source: {
+				code: `const [ confirm, confirmDialog ] = useConfirm();
+
+const onDelete = async () => {
+	if ( await confirm( __( '“Weekly roundup” moves to the trash.', 'my-plugin' ), {
+		title: __( 'Delete post?', 'my-plugin' ),
+		confirmLabel: __( 'Delete', 'my-plugin' ),
+		isDestructive: true,
+	} ) ) {
+		remove();
+	}
+};
+
+return <>{ confirmDialog }<Button isDestructive onClick={ onDelete }>…</Button></>;`,
+			},
+		},
+	},
 	render: () => (
 		<Demo
 			trigger="Delete post"
@@ -51,10 +70,33 @@ export const Destructive = {
 			} }
 		/>
 	),
+	play: async ( { canvas, canvasElement } ) => {
+		const body = within( canvasElement.ownerDocument.body );
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Delete post' } )
+		);
+		const dialog = await body.findByRole( 'dialog', {
+			name: 'Delete post?',
+		} );
+		await userEvent.click(
+			within( dialog ).getByRole( 'button', { name: 'Delete' } )
+		);
+		await expect(
+			await canvas.findByText( 'Resolved: true' )
+		).toBeVisible();
+	},
 };
 
-/** No options: the title and both labels come from the plugin's strings. */
 export const Defaults = {
+	parameters: {
+		docs: {
+			source: {
+				code: `if ( await confirm( __( 'Clear every filter on this view?', 'my-plugin' ) ) ) {
+	resetFilters();
+}`,
+			},
+		},
+	},
 	render: () => (
 		<Demo
 			trigger="Reset filters"
@@ -62,4 +104,23 @@ export const Defaults = {
 			options={ {} }
 		/>
 	),
+	play: async ( { canvas, canvasElement } ) => {
+		const body = within( canvasElement.ownerDocument.body );
+		await userEvent.click(
+			canvas.getByRole( 'button', { name: 'Reset filters' } )
+		);
+		const dialog = await body.findByRole( 'dialog' );
+		// Without options, the labels come from StringsProvider. The modal fades in.
+		await waitFor( () =>
+			expect(
+				within( dialog ).getByRole( 'button', { name: 'Confirm' } )
+			).toBeVisible()
+		);
+		await userEvent.click(
+			within( dialog ).getByRole( 'button', { name: 'Cancel' } )
+		);
+		await expect(
+			await canvas.findByText( 'Resolved: false' )
+		).toBeVisible();
+	},
 };

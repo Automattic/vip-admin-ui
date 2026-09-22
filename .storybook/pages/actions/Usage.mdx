@@ -1,0 +1,80 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { Button } from '@wordpress/components';
+
+import guide from '../../../docs/actions.md?raw';
+import { ActionRow } from '../../../src/actions/ActionRow';
+import * as ActionRowStories from '../../../src/actions/ActionRow.stories';
+import { DoDont, GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Actions/Usage" />
+
+# Actions
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={ActionRowStories.WithSecondary} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use an `ActionRow` for every group of actions outside a modal footer.
+- Use it for a single action too, so the action lines up with the groups around it.
+
+### When not to use
+
+- Do not use it in a modal footer. Use `ModalActions` instead.
+- Do not use it for a settings screen's Save. Use `SettingsFooter` instead.
+- Do not use it for an inspector panel's destructive control. Use `InspectorDangerZone` instead.
+- Do not use it for actions on DataViews items. Use DataViews action descriptors instead.
+
+<GuideSection guide={guide} section="tldr" />
+
+<GuideSection guide={guide} section="weight-what-variant-means" />
+
+<DoDont
+  do={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="secondary">Export</Button>
+      <Button variant="primary">Save</Button>
+    </ActionRow>
+  }
+  doCaption="Use one primary for the thing the user came to do."
+  dont={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary">Export</Button>
+      <Button variant="primary">Save</Button>
+    </ActionRow>
+  }
+  dontCaption="Do not use two primaries. Neither reads as the main action."
+/>
+
+<DoDont
+  do={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary" isDestructive>Delete</Button>
+    </ActionRow>
+  }
+  doCaption="Use red for an action that cannot be undone."
+  dont={
+    <ActionRow>
+      <Button variant="tertiary">Cancel</Button>
+      <Button variant="primary" isDestructive>Publish</Button>
+    </ActionRow>
+  }
+  dontCaption="Do not use red as a warning on something reversible. Add a confirm instead."
+/>
+
+## Related
+
+- **`ModalActions`**: the same row in a modal footer. See [Modals](./?path=/docs/modals-usage--docs).
+- **`SettingsFooter`**: a sticky row for a settings screen's one Save. See [Settings](./?path=/docs/settings-usage--docs).
+- **`InspectorDangerZone`**: the destructive control at the foot of an inspector panel. See [Inspector](./?path=/docs/inspector-usage--docs).
+- **`useConfirm`**: the confirm dialog for an irreversible action. See [Modals](./?path=/docs/modals-usage--docs).

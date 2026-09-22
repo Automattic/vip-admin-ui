@@ -3,6 +3,9 @@ import { InspectorDangerZone } from './InspectorDangerZone';
 export default {
 	title: 'Inspector/InspectorDangerZone',
 	component: InspectorDangerZone,
+	// The family's Usage, Build and Reference pages replace the autodocs page.
+	tags: [ '!autodocs' ],
+	parameters: { docs: { source: { type: 'dynamic' } } },
 	args: { label: 'Delete stage', onClick: () => {} },
 	decorators: [
 		( Story ) => (

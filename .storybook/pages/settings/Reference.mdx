@@ -1,0 +1,68 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import guide from '../../../docs/settings.md?raw';
+import * as SettingsStories from '../../../src/settings/SettingsSection.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNote,
+  DevNotesToggle,
+  DevSection,
+  GuideSection,
+  PageNav,
+  SpecimenTable,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Settings/Reference" />
+
+# Settings
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={SettingsStories.Screen}
+  parts={[
+    { label: 'Title', description: 'Names the section, as a level 2 heading.', note: <><code>title</code> prop, in <code>Fieldset.Legend</code> from <code>@wordpress/ui</code>.</>, selector: '.vipui-settings-section__legend', edge: 'left' },
+    { label: 'Description', description: 'Optional context for the whole group, in a muted tone.', note: <><code>description</code> prop, in <code>Fieldset.Description</code>.</>, selector: '.vipui-settings-section__description', edge: 'left' },
+    { label: 'Controls', description: 'A column of controls with a large gap between them.', note: <>A column <code>Stack</code> with <code>gap="xl"</code>.</>, selector: '.vipui-settings-section__controls', edge: 'left' },
+    { label: 'Save bar', description: 'Pinned to the bottom of the content column, with a rule above it.', note: <><code>SettingsFooter</code>, a sticky <code>ActionRow</code>.</>, selector: '.vipui-settings-footer', edge: 'left' },
+  ]}
+/>
+
+## States
+
+<SpecimenTable
+  head={['State', 'Trigger']}
+  rows={[
+    { of: SettingsStories.Footer, cells: ['Ready', 'There are unsaved changes.'] },
+    { of: SettingsStories.FooterSaving, cells: ['Saving', 'The save is in progress. The label does not change.'], note: <><code>isBusy</code> and <code>disabled</code> on the <code>Button</code>.</> },
+    { of: SettingsStories.FooterNothingToSave, cells: ['Nothing to save', 'Nothing has changed.'], note: <><code>disabled</code> on the <code>Button</code>.</> },
+    { of: SettingsStories.Loading, cells: ['Loading', 'The screen is fetching its settings.'] },
+    { of: SettingsStories.LoadingWithLabel, cells: ['Loading, labelled', 'A label names what is loading.'], note: <><code>label</code> prop. Without it, the row shows the <code>loading</code> string.</> },
+  ]}
+/>
+
+## Style
+
+### Interactive states
+
+The section, the save bar and the loading row have no pointer or keyboard treatment. Controls inside a section keep their own states. <Convention name="focus-ring" />
+
+## Accessibility
+
+### Labeling and states
+
+A section is announced as a group named by its title. Its description is read with the group's name. <DevNote>`Fieldset.Root` sets `aria-labelledby` to the legend and `aria-describedby` to `Fieldset.Description`.</DevNote>
+
+The loading row's words come from the plugin. <Convention name="strings" />
+
+<GuideSection guide={guide} section="accessibility-floor" demote />
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[SettingsStories]} />
+</DevSection>

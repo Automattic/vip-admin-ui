@@ -1,0 +1,71 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+import * as ModalStories from '../../../src/modal/ModalActions.stories';
+import * as ConfirmStories from '../../../src/modal/use-confirm.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNote,
+  DevNotesToggle,
+  DevSection,
+  KeyTable,
+  PageNav,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Modals/Reference" />
+
+# Modals
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={ModalStories.Surface}
+  parts={[
+    { label: 'Header', description: 'The title, and the close button of a dismissible modal.', note: <>Built by the WPDS <code>Modal</code> from <code>title</code> and <code>headerActions</code>.</>, selector: '.components-modal__header', edge: 'right' },
+    { label: 'Body', description: 'The content blocks, spaced evenly.', note: <><code>ModalBody</code>, a column <code>Stack</code> with <code>gap="md"</code>.</>, selector: '.vipui-modal-body', edge: 'right' },
+    { label: 'Footer', description: 'The buttons, right-aligned, with a larger gap above them.', note: <><code>ModalActions</code>, an <code>ActionRow</code> with <code>.vipui-modal-actions</code> adding the gap.</>, selector: '.vipui-modal-actions', edge: 'bottom' },
+    { label: 'Cancel', description: 'A tertiary button, first.', selector: '.vipui-modal-actions > :nth-child(1)' },
+    { label: 'Primary', description: 'The action, last.', selector: '.vipui-modal-actions > :nth-child(2)' },
+  ]}
+/>
+
+## States
+
+A modal is open, saving, showing an error, or blocking. See the Build page for each one.
+
+A confirmation resolves to yes when the user picks the confirm button, and to no when they cancel, close or dismiss it. A confirmation still waiting when a new one opens, or when the page leaves, resolves to no. <DevNote>`confirm()` returns a promise of `true` or `false`. A pending one settles `false` on a new `confirm()` call or on unmount.</DevNote>
+
+## Style
+
+### Interactive states
+
+The body and footer have no pointer or keyboard treatment. The buttons and the close button have the states of the WPDS `Button`. <Convention name="focus-ring" />
+
+The footer has a larger gap above it than between the body's blocks. <DevNote>`margin-top: var(--wpds-dimension-gap-xl)` on `.vipui-modal-actions`. A `Modal` body is not a `Stack`, so the footer sets its own gap.</DevNote>
+
+## Accessibility
+
+### Keyboard interactions
+
+<KeyTable
+  rows={[
+    ['`Tab` / `Shift` + `Tab`', 'Moves focus through the modal. Focus stays inside it while it is open.', <>The WPDS <code>Modal</code> traps focus.</>],
+    ['`Escape`', 'Closes a dismissible modal. A confirmation resolves to no.', <>Calls <code>onRequestClose</code>. A blocking modal sets <code>shouldCloseOnEsc={'{'}false{'}'}</code>.</>],
+    ['`Enter` / `Space`', 'Activates the focused button.'],
+  ]}
+/>
+
+### Labeling and states
+
+- The modal is announced as a dialog named by its title. <DevNote>The WPDS `Modal` sets `role="dialog"` and labels it with the title heading.</DevNote>
+- A saving button is announced as busy and disabled. <DevNote>`isBusy` and `disabled` on the WPDS `Button`.</DevNote>
+- A confirmation's buttons use the words from the plugin's strings when no labels are given. <Convention name="strings" />
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[ModalStories, ConfirmStories]} />
+</DevSection>

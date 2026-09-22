@@ -1,0 +1,68 @@
+import { Canvas, Meta } from '@storybook/addon-docs/blocks';
+import { ToggleControl } from '@wordpress/components';
+import { Card } from '@wordpress/ui';
+
+import guide from '../../../docs/settings.md?raw';
+import { SettingsSection } from '../../../src/settings/SettingsSection';
+import * as SettingsStories from '../../../src/settings/SettingsSection.stories';
+import { DoDont, GuideSection, PageNav } from '../../docs/blocks';
+
+<Meta title="Settings/Usage" />
+
+# Settings
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="usage" />
+
+<Canvas of={SettingsStories.Screen} sourceState="none" />
+
+## Overview
+
+<GuideSection guide={guide} section="intro" />
+
+### When to use
+
+- Use a `SettingsSection` for each titled group of the screen's own settings.
+- Use `SettingsFooter` for the screen's one Save.
+- Use `SettingsLoading` while the screen fetches its settings.
+
+### When not to use
+
+- Do not use a section for a repeating entity the user acts on individually. Use a `Card` instead.
+- Do not use `SettingsFooter` on a screen whose controls apply immediately. That screen has no Save.
+- Do not use these in an inspector panel. Use `InspectorSection` instead.
+
+<GuideSection guide={guide} section="tldr" />
+
+<GuideSection guide={guide} section="what-core-does" />
+
+<GuideSection guide={guide} section="cards" />
+
+<DoDont
+  do={
+    <SettingsSection title="Publishing">
+      <ToggleControl __nextHasNoMarginBottom label="Lock published posts" checked={false} onChange={() => {}} />
+    </SettingsSection>
+  }
+  doCaption="Use a section for part of the screen's own settings."
+  dont={
+    <Card.Root>
+      <Card.Header>
+        <Card.Title render={<h2 />}>Publishing</Card.Title>
+      </Card.Header>
+      <Card.Content>
+        <ToggleControl __nextHasNoMarginBottom label="Lock published posts" checked={false} onChange={() => {}} />
+      </Card.Content>
+    </Card.Root>
+  }
+  dontCaption="Do not put the screen's own settings in a card. A card is for an item the screen lists."
+/>
+
+<GuideSection guide={guide} section="badges" />
+
+## Related
+
+- **`ActionRow`**: the action group `SettingsFooter` is built on. See [Actions](./?path=/docs/actions-usage--docs).
+- **`InspectorSection`**: the titled group for an inspector panel. See [Inspector](./?path=/docs/inspector-usage--docs).
+- **`ModalActions`**: the action row for a modal footer. See [Modals](./?path=/docs/modals-usage--docs).

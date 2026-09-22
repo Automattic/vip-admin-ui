@@ -1,0 +1,96 @@
+import { Meta, Source } from '@storybook/addon-docs/blocks';
+import { Button, CheckboxControl } from '@wordpress/components';
+import { trash } from '@wordpress/icons';
+
+import guide from '../../../docs/inspector.md?raw';
+import * as ChoiceRowStories from '../../../src/inspector/InspectorChoiceRow.stories';
+import * as DangerZoneStories from '../../../src/inspector/InspectorDangerZone.stories';
+import * as FieldListStories from '../../../src/inspector/InspectorFieldList.stories';
+import * as SectionStories from '../../../src/inspector/InspectorSection.stories';
+import { ConventionLink, DoDont, GuideSection, PageNav, Recipe } from '../../docs/blocks';
+
+<Meta title="Inspector/Build" />
+
+# Inspector
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22
+
+<PageNav current="build" />
+
+## Designing with it
+
+### Choices and removal
+
+<DoDont
+  do={ChoiceRowStories.None}
+  doCaption="Put a multi-select on one row that opens its checkboxes."
+  dont={
+    <div className="sb-inspector-column">
+      <CheckboxControl __nextHasNoMarginBottom label="Administrator" checked={false} onChange={() => {}} />
+      <CheckboxControl __nextHasNoMarginBottom label="Editor" checked={false} onChange={() => {}} />
+      <CheckboxControl __nextHasNoMarginBottom label="Author" checked={false} onChange={() => {}} />
+      <CheckboxControl __nextHasNoMarginBottom label="Contributor" checked={false} onChange={() => {}} />
+    </div>
+  }
+  dontCaption="Do not list every option in the panel. The list grows with the site."
+/>
+
+<DoDont
+  do={DangerZoneStories.Default}
+  doCaption="End the body with a labeled, full-width delete button."
+  dont={<Button icon={trash} label="Delete stage" showTooltip isDestructive />}
+  dontCaption="Do not use an icon whose meaning is in a tooltip. A touch screen does not show it."
+/>
+
+### Before you ship
+
+The component does not supply these. Specify them in the design:
+
+- Write the eyebrow and the title for each kind of item the panel shows.
+- Mark which sections are collapsible, and write the summary each one shows while closed.
+- Write the explanation for each read-out row that has an info tip.
+- Write why the delete action is unavailable, for every case where it is.
+
+## Coding with it
+
+### Import
+
+<Source
+  language="js"
+  dark
+  code="import { InspectorCollapseContext, InspectorShell, InspectorSection, Fact, SortableFact, InfoTip, InspectorFieldList, InspectorFieldListAdd, InspectorChoiceRow, InspectorDangerZone } from '@automattic/vip-admin-ui';"
+/>
+
+<GuideSection guide={guide} section="setup" demote />
+
+<ConventionLink name="setup" /> <ConventionLink name="strings" />
+
+<GuideSection guide={guide} section="a-whole-panel" demote />
+
+<GuideSection guide={guide} section="inspectorshell-and-inspectorcollapsecontext" demote />
+
+<GuideSection guide={guide} section="inspectorsection" demote />
+
+<Recipe of={SectionStories.WithActions} caption="A control in the heading row, beside the title." />
+
+<Recipe of={SectionStories.Collapsible} caption="A closed section shows its summary beside the title." />
+
+<Recipe of={SectionStories.Stacked} caption="The parent Stack sets the gap. Each section draws its own divider." />
+
+<GuideSection guide={guide} section="read-out-rows-fact-sortablefact-infotip" demote />
+
+<GuideSection guide={guide} section="inspectorfieldlist-and-inspectorfieldlistadd" demote />
+
+<Recipe of={FieldListStories.Configurable} caption="Pressing a row opens its settings in a popover beside it." />
+
+<Recipe of={FieldListStories.Navigable} caption="With no settings popover, a row selects its item elsewhere." />
+
+<GuideSection guide={guide} section="inspectorchoicerow" demote />
+
+<Recipe of={ChoiceRowStories.Names} caption="The row names the choices while they fit." />
+
+<GuideSection guide={guide} section="inspectordangerzone" demote />
+
+### Considerations
+
+<GuideSection guide={guide} section="open-question-popover-and-menu" demote />

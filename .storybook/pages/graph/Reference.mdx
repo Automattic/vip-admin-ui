@@ -1,0 +1,107 @@
+import { Meta, Story } from '@storybook/addon-docs/blocks';
+
+import * as GraphStories from '../../../src/graph/GraphCanvas.stories';
+import {
+  Anatomy,
+  Convention,
+  DevNote,
+  DevNotesToggle,
+  DevSection,
+  KeyTable,
+  PageNav,
+  TestingStatus,
+} from '../../docs/blocks';
+
+<Meta title="Graph/Reference" />
+
+# Graph
+
+**Status:** Beta&emsp;**Last updated:** 2026-09-22&emsp;<DevNotesToggle />
+
+<PageNav current="reference" />
+
+## Anatomy
+
+<Anatomy
+  of={GraphStories.Default}
+  parts={[
+    { label: 'Start', description: 'The pill where the flow begins. It has one exit.', note: <><code>type: GRAPH_TERMINAL_TYPE</code>, <code>data.kind: 'start'</code>.</>, selector: '.vipui-graph-terminal' },
+    { label: 'Card', description: 'One step. The whole card is a drop target.', note: <><code>type: GRAPH_NODE_TYPE</code>, sized <code>GRAPH_NODE_SIZE</code>.</>, selector: '.vipui-graph-node', edge: 'left' },
+    { label: 'Name', description: 'Truncates to one line.', note: <><code>data.label</code></>, selector: '.vipui-graph-node__label' },
+    { label: 'Meta', description: 'A muted footer line.', note: <><code>data.meta</code></>, selector: '.vipui-graph-node__meta', edge: 'right' },
+    { label: 'Badge', description: 'A brand-toned footer read-out.', note: <><code>data.badge</code></>, selector: '.vipui-graph-node__badge', edge: 'right' },
+    { label: 'Edge', description: 'A connection. It meets each card on the border that faces the other card.', note: <>A React Flow edge. Its <code>type</code> defaults to <code>GRAPH_EDGE_TYPE</code>.</>, selector: '.react-flow__edge', edge: 'right' },
+    { label: 'End', description: 'The pill where the flow ends. It is a drop target like a card.', note: <><code>data.kind: 'end'</code></>, selector: '.react-flow__node:last-child .vipui-graph-terminal', edge: 'bottom' },
+    { label: 'Zoom controls', description: 'Zoom in, zoom out and fit the view.', selector: '.react-flow__controls', edge: 'right' },
+  ]}
+/>
+
+<Anatomy
+  of={GraphStories.Bands}
+  parts={[
+    { label: 'Band', description: 'A section of the canvas, from its line to the next band.', note: <>An entry in <code>bands</code>, with <code>y</code> in flow coordinates.</>, selector: '.vipui-graph-bands__section:nth-child(2)', edge: 'right' },
+    { label: 'Band label', description: 'Stays on the left edge at any pan or zoom. Selects the band.', note: <><code>label</code>, <code>icon</code>, <code>onSelectBand</code>.</>, selector: '.vipui-graph-band-labels__label', edge: 'right' },
+  ]}
+/>
+
+## States
+
+<Story of={GraphStories.CardStates} />
+
+<table>
+  <thead>
+    <tr><th>State</th><th>When</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>Default</td><td>At rest.</td></tr>
+    <tr><td>Selected</td><td>The user selected the card. Its border takes the brand colour.</td></tr>
+    <tr><td>Warning</td><td>The card has a problem. The card turns caution-toned and its title is flagged.</td></tr>
+    <tr><td>Accent</td><td>The card is a kind your plugin gives its own colour.</td></tr>
+    <tr><td>Raised</td><td>The card sits on a band's border.</td></tr>
+    <tr><td>Badge</td><td>The card has a footer read-out, such as Publishes.</td></tr>
+    <tr><td>Disabled edge</td><td>The edge is off. It is dotted and muted, and still selectable and deletable.</td></tr>
+  </tbody>
+</table>
+
+### Interactions
+
+**Mouse:** Click a card, an edge's pill or a band label to select it. Drag a card to move it. Drag from a card's grip or an exit badge to another card to connect them. Drag a selected edge's ring to move that end. Right-click a card, an edge, a band label or empty canvas to open its menu.
+
+**Keyboard:** See Keyboard interactions.
+
+## Style
+
+### Interactive states
+
+Hovering a card darkens its border and shows its grip or exit badges. Hovering an edge shows its pill. A selected card, edge or band takes the brand colour. <Convention name="focus-ring" also="Cards, edges and menu items use the WPDS focus stroke." />
+
+### Structure
+
+A card is 200 by 80 pixels and a Start or End pill is 120 by 36. Your layout positions them.
+
+## Accessibility
+
+### Keyboard interactions
+
+<KeyTable
+  rows={[
+    ['`Tab`', 'Moves focus to the next card or edge. Start and End take no tab stop.', <><code>focusable: false</code> on the terminals.</>],
+    ['`Enter` / `Space`', 'Selects the focused card or edge.'],
+    ['`←` `→` `↑` `↓`', 'Moves the selected card.', <>Reported through <code>onNodesChange</code>. <code>classifyPositionChanges</code> tells a keyboard step from a drag.</>],
+    ['`Backspace`', 'Deletes the selected card or edge.', <><code>onDeleteNode</code>, <code>onDeleteEdge</code>. A node built <code>deletable: false</code> is protected. <code>deleteKeyCode</code> changes the key.</>],
+    ['`Escape`', 'Abandons a connection or an end drag in progress. Closes an open menu and returns focus to what opened it.'],
+    ['`↑` / `↓`', 'In a menu, moves between items. Wraps at the ends.'],
+    ['`Home` / `End`', 'In a menu, moves to the first or last item.'],
+  ]}
+/>
+
+### Labeling and states
+
+- A card's warnings are announced as the name of its flag. <DevNote><code>data.warnings</code></DevNote>
+- A card can have screen-reader text for state the canvas shows another way. <DevNote><code>data.description</code></DevNote>
+- The link mark on an edge drawn more than once has its own accessible name. <DevNote><code>data.linkLabel</code></DevNote>
+- A menu is named for what it acts on, and its items are menu items. <DevNote>The <code>label</code> returned from <code>contextMenu</code>. The menu is <code>role="menu"</code> with one tab stop.</DevNote>
+
+<DevSection title="Testing status" hint="axe and interaction coverage, per story">
+  <TestingStatus of={[GraphStories]} />
+</DevSection>
