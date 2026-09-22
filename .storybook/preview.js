@@ -8,14 +8,24 @@ import './preview.css';
 import './docs/docs.css';
 
 import * as wpComponents from '@wordpress/components';
+import * as wpUi from '@wordpress/ui';
+
+import * as vipUi from '../src';
 
 import { StringsProvider } from '../src/strings';
 import { strings } from './strings';
 
-// WPDS components are forwardRefs with no displayName, so a story's dynamic
-// source prints `<React.ForwardRef>`. Name them after their export, here only.
-for ( const [ name, component ] of Object.entries( wpComponents ) ) {
-	if ( component?.$$typeof && ! component.displayName ) {
+// A story's dynamic source prints a component by its displayName. WPDS
+// forwardRefs have none (`<React.ForwardRef>`), and a production build
+// minifies this package's own function names (`<Mt>`). Name every export after
+// itself, here only.
+for ( const [ name, component ] of Object.entries( {
+	...wpComponents,
+	...wpUi,
+	...vipUi,
+} ) ) {
+	const isComponent = typeof component === 'function' || component?.$$typeof;
+	if ( isComponent && ! component.displayName ) {
 		component.displayName = name;
 	}
 }

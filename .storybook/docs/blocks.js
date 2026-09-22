@@ -30,12 +30,29 @@ import { info } from '@wordpress/icons';
 import { StringsProvider } from '../../src/strings';
 import { strings } from '../strings';
 import { CONVENTIONS } from './conventions';
-import { guideHref, guideSection } from './guide-sections';
+import { guideHref, guideSection, sectionPages } from './guide-sections';
 
 /* ─── Guide text ──────────────────────────────────────────────────── */
 
+// Which page shows each guide heading, read from the pages' own source.
+const SECTION_PAGES = sectionPages(
+	import.meta.glob( '../pages/*/*.mdx', {
+		query: '?raw',
+		import: 'default',
+		eager: true,
+	} ),
+	import.meta.glob( '../../docs/*.md', {
+		query: '?raw',
+		import: 'default',
+		eager: true,
+	} )
+);
+
 const GuideLink = ( { href, ...props } ) => (
-	<AnchorMdx { ...props } href={ href && guideHref( href ) } />
+	<AnchorMdx
+		{ ...props }
+		href={ href && guideHref( href, SECTION_PAGES, currentFamily() ) }
+	/>
 );
 
 // `Markdown` spreads `options` after its own overrides, so passing any
@@ -269,7 +286,7 @@ export function Anatomy( { of, parts } ) {
 
 	return (
 		<figure className="sb-anatomy">
-			<div className="sb-anatomy__stage" ref={ stage }>
+			<div className="sb-anatomy__stage sb-unstyled" ref={ stage }>
 				<Story of={ of } />
 				{ points.map(
 					( point, i ) =>
@@ -281,12 +298,20 @@ export function Anatomy( { of, parts } ) {
 								style={ point }
 								aria-hidden="true"
 							>
-								{ GLYPHS[ i ] }
+								{ parts.length > GLYPHS.length
+									? i + 1
+									: GLYPHS[ i ] }
 							</span>
 						)
 				) }
 			</div>
-			<ol className="sb-anatomy__legend">
+			<ol
+				className={ `sb-anatomy__legend${
+					parts.length > GLYPHS.length
+						? ' sb-anatomy__legend--plain'
+						: ''
+				}` }
+			>
 				{ parts.map( ( { label, description, note } ) => (
 					<li key={ label }>
 						<strong>{ label }.</strong> { description }
@@ -534,8 +559,8 @@ export function KeyTable( { rows } ) {
 				</tr>
 			</thead>
 			<tbody>
-				{ rows.map( ( [ keys, action, note ] ) => (
-					<tr key={ keys }>
+				{ rows.map( ( [ keys, action, note ], i ) => (
+					<tr key={ i }>
 						<td>{ keycaps( keys ) }</td>
 						<td>
 							{ action }

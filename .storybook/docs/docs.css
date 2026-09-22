@@ -100,6 +100,12 @@
 	list-style: sb-anatomy;
 }
 
+/* The font's circled digits stop at nine; past that, number every part plainly
+   rather than switching halfway down. */
+.sb-anatomy__legend--plain {
+	list-style: decimal;
+}
+
 .sb-anatomy__legend ::marker {
 	color: var(--wpds-color-foreground-interactive-brand);
 }

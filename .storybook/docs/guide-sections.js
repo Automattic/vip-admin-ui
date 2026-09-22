@@ -14,7 +14,7 @@ export function slugify( heading ) {
 	return heading
 		.trim()
 		.toLowerCase()
-		.replace( /[^\p{L}\p{N}\s-]/gu, '' )
+		.replace( /[^\p{L}\p{N}\s_-]/gu, '' )
 		.replace( /\s/g, '-' );
 }
 
@@ -71,22 +71,71 @@ export const FAMILY_PAGES = new Set( [
 ] );
 
 /**
- * The Storybook href for a link between guides (`modals.md#useconfirm`), or
- * the href unchanged when it points anywhere else.
+ * Which page renders each heading of each guide, as `family#slug` → page.
+ * Read from the pages themselves (`<GuideSection section="…">`), and every
+ * heading inside a `##` section goes with it, so an anchor lands on the page
+ * that shows it.
  *
- * @param {string} href A link target from a guide.
+ * @param {Object<string, string>} pages  MDX source by path, `…/pages/<family>/<Page>.mdx`.
+ * @param {Object<string, string>} guides Guide source by path, `…/docs/<family>.md`.
+ * @return {Map<string, string>} `family#slug` → `usage`, `build` or `reference`.
+ */
+export function sectionPages( pages, guides ) {
+	const map = new Map();
+	for ( const [ path, mdx ] of Object.entries( pages ) ) {
+		const match = /\/([a-z0-9-]+)\/(Usage|Build|Reference)\.mdx$/.exec(
+			path
+		);
+		if ( ! match ) {
+			continue;
+		}
+		const [ , family, page ] = match;
+		const guide = Object.entries( guides ).find( ( [ guidePath ] ) =>
+			guidePath.endsWith( `/${ family }.md` )
+		)?.[ 1 ];
+		for ( const [ , slug ] of mdx.matchAll( /section="([^"]+)"/g ) ) {
+			const headings =
+				guide && slug !== 'intro'
+					? [
+							...guideSection( guide, slug ).matchAll(
+								/^#+ (.*)$/gm
+							),
+						].map( ( [ , heading ] ) => slugify( heading ) )
+					: [ slug ];
+			for ( const heading of headings ) {
+				map.set( `${ family }#${ heading }`, page.toLowerCase() );
+			}
+		}
+	}
+	return map;
+}
+
+/**
+ * The Storybook href for a link in a guide: to another guide
+ * (`modals.md#useconfirm`) or to a heading of its own (`#vocabulary`). An
+ * anchor goes to the page that renders its heading, per `pages`. Anything
+ * else comes back unchanged.
+ *
+ * @param {string}              href     A link target from a guide.
+ * @param {Map<string, string>} [pages]  From `sectionPages`.
+ * @param {string}              [family] The guide the link is in, for `#…` links.
  * @return {string} The href to render.
  */
-export function guideHref( href ) {
-	const match = /^([a-z0-9-]+)\.md(#.*)?$/.exec( href );
-	if ( ! match ) {
+export function guideHref( href, pages = new Map(), family ) {
+	const match = /^(?:([a-z0-9-]+)\.md)?(?:#(.*))?$/.exec( href );
+	if ( ! match || ( ! match[ 1 ] && ! family ) || href === '' ) {
 		return href;
 	}
-	const family = match[ 1 ] === 'i18n' ? 'strings' : match[ 1 ];
-	const id = FAMILY_PAGES.has( family )
-		? `${ family }-usage--docs`
-		: `guidelines-${ family }--docs`;
-	// ponytail: every link lands on Usage; an anchor on Build or Reference
-	// scrolls nowhere. Map anchors to pages if that starts to bite.
-	return `./?path=/docs/${ id }${ match[ 2 ] ?? '' }`;
+	const target = match[ 1 ] === 'i18n' ? 'strings' : ( match[ 1 ] ?? family );
+	const anchor = match[ 2 ];
+	if ( ! FAMILY_PAGES.has( target ) ) {
+		return `./?path=/docs/guidelines-${ target }--docs${
+			anchor ? `#${ anchor }` : ''
+		}`;
+	}
+	const page =
+		( anchor && pages.get( `${ target }#${ anchor }` ) ) || 'usage';
+	return `./?path=/docs/${ target }-${ page }--docs${
+		anchor ? `#${ anchor }` : ''
+	}`;
 }

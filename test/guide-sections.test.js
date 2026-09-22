@@ -1,5 +1,6 @@
 import {
 	guideHref,
+	sectionPages,
 	guideSection,
 	guideSlugs,
 	slugify,
@@ -24,6 +25,9 @@ describe( 'guide sections', () => {
 			'weight-what-variant-means'
 		);
 		expect( slugify( 'TL;DR' ) ).toBe( 'tldr' );
+		expect( slugify( 'Cards: `GRAPH_NODE_TYPE`' ) ).toBe(
+			'cards-graph_node_type'
+		);
 	} );
 
 	it( 'returns the intro without the title', () => {
@@ -61,5 +65,23 @@ describe( 'guide sections', () => {
 		expect( guideHref( 'https://example.com' ) ).toBe(
 			'https://example.com'
 		);
+	} );
+
+	it( 'sends an anchor to the page that renders its section', () => {
+		const pages = sectionPages(
+			{
+				'/pages/actions/Usage.mdx': '<GuideSection section="tldr" />',
+				'/pages/actions/Build.mdx':
+					'<GuideSection section="weight-what-variant-means" />',
+			},
+			{ '/docs/actions.md': GUIDE }
+		);
+		expect(
+			guideHref( '#weight-what-variant-means', pages, 'actions' )
+		).toBe( './?path=/docs/actions-build--docs#weight-what-variant-means' );
+		expect( guideHref( 'actions.md#tldr', pages ) ).toBe(
+			'./?path=/docs/actions-usage--docs#tldr'
+		);
+		expect( guideHref( '#elsewhere', pages ) ).toBe( '#elsewhere' );
 	} );
 } );
