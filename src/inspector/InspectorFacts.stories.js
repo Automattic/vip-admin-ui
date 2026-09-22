@@ -12,17 +12,23 @@ export default {
 	parameters: { docs: { source: { type: 'dynamic' } } },
 	subcomponents: { SortableFact },
 	args: { label: 'Post status', value: 'Pending' },
+	// Each row renders in the list a panel puts it in. A story that draws its
+	// own list sets `ownList`.
 	decorators: [
-		( Story ) => (
+		( Story, { parameters } ) => (
 			<div className="sb-inspector-column">
-				<Stack
-					render={ <ul /> }
-					direction="column"
-					gap="xs"
-					className="vipui-inspector__facts"
-				>
+				{ parameters.ownList ? (
 					<Story />
-				</Stack>
+				) : (
+					<Stack
+						render={ <ul /> }
+						direction="column"
+						gap="xs"
+						className="vipui-inspector__facts"
+					>
+						<Story />
+					</Stack>
+				) }
 			</div>
 		),
 	],
@@ -59,23 +65,32 @@ export const Disabled = {
 };
 
 export const Sortable = {
-	// a11y todo: the grip is a 16px target (WCAG 2.5.8 wants 24px), and dnd-kit's role=status announcer lands inside the <ul>.
-	parameters: { a11y: { test: 'todo' } },
+	// a11y todo: the grip is a 16px target; WCAG 2.5.8 wants 24px.
+	// DndContext renders a live region, which can't be a child of the <ul>, so
+	// this story draws its own list inside the context.
+	parameters: { a11y: { test: 'todo' }, ownList: true },
 	render: () => (
 		<DndContext>
 			<SortableContext items={ [ 'a', 'b' ] }>
-				<SortableFact
-					id="a"
-					dragLabel="Reorder Headline"
-					label="Headline"
-					value="text"
-				/>
-				<SortableFact
-					id="b"
-					dragLabel="Reorder Kicker"
-					label="Kicker"
-					value="text"
-				/>
+				<Stack
+					render={ <ul /> }
+					direction="column"
+					gap="xs"
+					className="vipui-inspector__facts"
+				>
+					<SortableFact
+						id="a"
+						dragLabel="Reorder Headline"
+						label="Headline"
+						value="text"
+					/>
+					<SortableFact
+						id="b"
+						dragLabel="Reorder Kicker"
+						label="Kicker"
+						value="text"
+					/>
+				</Stack>
 			</SortableContext>
 		</DndContext>
 	),
